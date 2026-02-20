@@ -1,0 +1,2 @@
++ exec gosu vibecode node node_modules/.bin/expo start --localhost
+ConfigError: The expected package.json path: /home/user/workspace/mobile/package.json does not exist
