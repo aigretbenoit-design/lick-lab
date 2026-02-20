@@ -1,0 +1,5541 @@
+</div>
+    <!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lick Lab v6</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Courier+Prime:wght@400;700&family=Bebas+Neue&family=DM+Sans:wght@300;400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg:           #0f0e0c;
+    --surface:      #1a1916;
+    --surface2:     #242220;
+    --border:       #333230;
+    --string-color: #4a4744;
+    --accent:       #c8b97a;
+    --text:         #e8e4dc;
+    --text-dim:     #7a7670;
+    --fret-bg:      #c8b97a;
+    --fret-text:    #0f0e0c;
+    --cont-bg:      #4a4230;
+    --cont-text:    #c8b97a;
+    --bar-line:     #9a9490;
+    --beat-line:    #52504e;
+    --sub-line:     #2a2826;
+    --hover:        rgba(200,185,122,0.07);
+    --fb-wood:      #c8a84b;
+    --fb-wood-dark: #a8893a;
+    --fb-wood-bg:   #d4a843;
+    --fb-inlay:     #e8c875;
+    --fb-string-1:  #e8e0d0;
+    --fb-string-6:  #b8a878;
+    --fb-note-root: #4a90d9;
+    --fb-note-scale:#4ab870;
+    --fb-note-dim:  #2a5a3a;
+    --fb-note-out:  #2a2826;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 0 90px;
+  }
+
+  /* ── HOME SCREEN ── */
+  .home-screen {
+    position: fixed;
+    inset: 0;
+    background: var(--bg);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 48px;
+    z-index: 900;
+    padding: 40px 20px;
+  }
+  .home-screen.hidden { display: none; }
+
+  .home-logo {
+    text-align: center;
+  }
+  .home-logo h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 5rem;
+    letter-spacing: 0.2em;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .home-logo p {
+    color: var(--text-dim);
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    margin-top: 8px;
+  }
+
+  .home-btns {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .home-btn {
+    width: 200px;
+    height: 200px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+  }
+  .home-btn:hover {
+    border-color: var(--accent);
+    background: var(--surface2);
+  }
+  .home-btn .home-btn-icon {
+    font-size: 2.8rem;
+    line-height: 1;
+  }
+  .home-btn .home-btn-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+  }
+  .home-btn .home-btn-sub {
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-align: center;
+    padding: 0 12px;
+  }
+
+  /* ── APP SHELL ── */
+  .app-shell {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .app-shell.hidden { display: none; }
+
+  /* ── TOP NAV ── */
+  .top-nav {
+    width: 100%;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    height: 56px;
+    gap: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .top-nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    margin-right: 32px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+
+  .top-nav-tabs {
+    display: flex;
+    height: 100%;
+    gap: 0;
+    flex: 1;
+  }
+
+  .nav-tab {
+    height: 100%;
+    padding: 0 20px;
+    display: flex;
+    align-items: center;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+    user-select: none;
+  }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+  /* ── TAB CONTENT PANELS ── */
+  .tab-panel {
+    display: none;
+    width: 100%;
+    max-width: 1100px;
+    padding: 32px 20px 20px;
+  }
+  .tab-panel.active { display: block; }
+
+  /* sub-header for each panel */
+  .panel-header {
+    text-align: center;
+    margin-bottom: 32px;
+  }
+  .panel-header p {
+    color: var(--text-dim);
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* ── PRACTICE PANEL ── */
+  .practice-layout {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .practice-session {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px 24px;
+  }
+
+  .practice-session h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    margin-bottom: 14px;
+  }
+
+  .session-controls {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    margin-bottom: 14px;
+  }
+
+  .session-lick-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 240px;
+    overflow-y: auto;
+  }
+
+  .session-lick-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 8px 12px;
+    cursor: pointer;
+    transition: border-color 0.12s;
+  }
+  .session-lick-row:hover { border-color: var(--accent); }
+  .session-lick-row.active { border-color: var(--accent); background: rgba(200,185,122,0.06); }
+
+  .session-lick-num {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    width: 18px;
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .session-lick-title {
+    flex: 1;
+    font-size: 0.85rem;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .session-lick-meta {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.6rem;
+    color: var(--text-dim);
+    flex-shrink: 0;
+  }
+  .session-lick-remove {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 0.75rem;
+    padding: 2px 5px;
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+  .session-lick-remove:hover { color: #e05555; }
+
+  .session-empty {
+    text-align: center;
+    padding: 24px;
+    color: var(--text-dim);
+    font-size: 0.78rem;
+    font-family: 'Courier Prime', monospace;
+  }
+
+  /* Practice tab view */
+  .practice-tab-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px 24px;
+    position: relative;
+  }
+
+  .practice-tab-wrap.hidden-tab .tab-scroll {
+    filter: blur(6px);
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .hidden-tab-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    opacity: 0.5;
+    pointer-events: none;
+    display: none;
+  }
+  .practice-tab-wrap.hidden-tab .hidden-tab-overlay { display: flex; }
+
+  /* Practice player bar extras */
+  .pb-practice-extras {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .editor-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 32px 28px 28px;
+    width: 100%;
+    max-width: 1100px;
+  }
+
+  .tab-scroll { overflow-x: auto; padding-bottom: 4px; }
+
+  .tab-grid {
+    display: inline-flex;
+    flex-direction: column;
+    user-select: none;
+  }
+
+  .bar-row {
+    display: flex;
+    margin-bottom: 1px;
+    align-items: flex-end;
+    height: 16px;
+  }
+
+  .beat-row {
+    display: flex;
+    margin-bottom: 5px;
+    align-items: flex-end;
+    height: 14px;
+  }
+
+  .bar-label-cell {
+    flex-shrink: 0;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    opacity: 0.85;
+    text-align: center;
+  }
+
+  .beat-label-cell {
+    flex-shrink: 0;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.6rem;
+    color: var(--text-dim);
+    opacity: 0.5;
+    text-align: center;
+  }
+
+  .note-name-row {
+    display: flex;
+    margin-top: 2px;
+    margin-bottom: 2px;
+  }
+
+  .note-name-cell {
+    flex-shrink: 0;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    opacity: 0.85;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 16px;
+    overflow: hidden;
+  }
+
+  .string-row {
+    display: flex;
+    align-items: center;
+    height: 40px;
+  }
+
+  .string-name {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.75rem;
+    color: var(--text-dim);
+    width: 36px;
+    text-align: right;
+    padding-right: 8px;
+    flex-shrink: 0;
+  }
+
+  .string-cells {
+    display: flex;
+    position: relative;
+    height: 40px;
+    align-items: center;
+  }
+
+  .string-cells::before {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; top: 50%;
+    height: 1px;
+    background: var(--string-color);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .cell {
+    flex-shrink: 0;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+    cursor: pointer;
+  }
+  .cell.no-click { cursor: default; }
+
+  .cell-bg {
+    position: absolute;
+    inset: 3px 0px;
+    border-radius: 2px;
+    transition: background 0.1s;
+  }
+  .cell:hover:not(.no-click) .cell-bg { background: var(--hover); }
+
+  .cell-content {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+
+  .fret-badge {
+    font-family: 'Courier Prime', monospace;
+    font-weight: 700;
+    font-size: 0.88rem;
+    border-radius: 3px;
+    /* Fill the full cell width minus a small margin on each side */
+    width: calc(100% - 4px);
+    text-align: center;
+    line-height: 1.45;
+    white-space: nowrap;
+    overflow: hidden;
+    /* Vertically compact */
+    padding: 2px 0;
+    box-sizing: border-box;
+  }
+  .fret-badge.normal { background: var(--fret-bg); color: var(--fret-text); }
+  .fret-badge.cont {
+    background: var(--cont-bg);
+    color: transparent;  /* hide the number */
+    position: relative;
+    height: 6px;
+    border-radius: 0 3px 3px 0;
+    padding: 0;
+    align-self: center;
+    /* Show as a thin coloured bar to represent the tie */
+  }
+  .fret-badge.cont::after {
+    content: '';
+    position: absolute;
+    inset: 2px 0;
+    background: var(--cont-text);
+    border-radius: 0 2px 2px 0;
+    opacity: 0.5;
+  }
+
+  .div-bar  { border-left: 2px solid var(--bar-line); }
+  .div-beat { border-left: 1px solid var(--beat-line); }
+  .div-sub  { border-left: 1px dashed var(--sub-line); }
+
+  .bar-cap {
+    width: 2px;
+    flex-shrink: 0;
+    height: 40px;
+    background: var(--bar-line);
+  }
+
+  .ctrl-row {
+    display: flex;
+    margin-left: 36px;
+    margin-top: 6px;
+    align-items: flex-start;
+  }
+
+  .cell-ctrl {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    padding: 0 2px;
+  }
+
+  .note-sel {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.6rem;
+    border-radius: 3px;
+    padding: 2px 2px;
+    width: 100%;
+    min-width: 0;
+    cursor: pointer;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    text-align: center;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .note-sel:hover, .note-sel:focus { border-color: var(--accent); color: var(--accent); }
+  .note-sel:disabled { opacity: 0.2; cursor: default; pointer-events: none; }
+  .note-sel.is-cont { opacity: 1 !important; color: var(--cont-text) !important; border-color: var(--cont-bg) !important; font-style: italic; }
+
+  /* ── Custom note picker dropdown ── */
+  .nv-trigger {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.62rem;
+    border-radius: 3px;
+    padding: 2px 4px;
+    cursor: pointer;
+    text-align: center;
+    transition: border-color 0.15s, color 0.15s;
+    width: 100%;
+    user-select: none;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .nv-trigger:hover { border-color: var(--accent); color: var(--accent); }
+
+  .nv-panel {
+    position: fixed;
+    z-index: 400;
+    background: var(--surface2);
+    border: 1.5px solid var(--accent);
+    border-radius: 5px;
+    padding: 6px;
+    box-shadow: 0 6px 28px rgba(0,0,0,0.75);
+    min-width: 90px;
+    display: none;
+    flex-direction: column;
+    gap: 3px;
+  }
+  .nv-panel.open { display: flex; }
+
+  .nv-mods {
+    display: flex;
+    gap: 4px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 2px;
+  }
+
+  .nv-mod {
+    flex: 1;
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.6rem;
+    color: var(--text-dim);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 2px 4px;
+    cursor: pointer;
+    text-align: center;
+    transition: all 0.12s;
+    user-select: none;
+  }
+  .nv-mod:hover { border-color: var(--accent); color: var(--accent); }
+  .nv-mod.on { background: var(--accent); border-color: var(--accent); color: var(--fret-text); }
+
+  .nv-option {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    padding: 3px 6px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background 0.1s, color 0.1s;
+  }
+  .nv-option:hover { background: rgba(200,185,122,0.12); color: var(--accent); }
+  .nv-option.selected { color: var(--accent); font-weight: 700; }
+
+  .note-ctrl-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    width: 100%;
+  }
+
+
+  .tie-wrap {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    cursor: pointer;
+  }
+  .tie-wrap input { accent-color: var(--accent); width: 10px; height: 10px; cursor: pointer; }
+  .tie-wrap span  { font-size: 0.52rem; color: var(--text-dim); font-family: 'Courier Prime', monospace; }
+  .tie-wrap.disabled { opacity: 0.15; pointer-events: none; }
+
+  #fretPopup {
+    position: fixed;
+    z-index: 300;
+    background: var(--surface2);
+    border: 1.5px solid var(--accent);
+    border-radius: 5px;
+    padding: 6px 10px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    box-shadow: 0 6px 28px rgba(0,0,0,0.75);
+  }
+  #fretPopup input {
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--accent);
+    font-family: 'Courier Prime', monospace;
+    font-size: 1.3rem;
+    font-weight: 700;
+    width: 52px;
+    text-align: center;
+  }
+  #fretPopup .hint { font-size: 0.58rem; color: var(--text-dim); text-align: center; }
+
+  .bottom-bar {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem;
+    padding: 8px 20px;
+    border-radius: 3px;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: all 0.15s;
+  }
+  .btn:hover { border-color: var(--accent); color: var(--accent); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #0f0e0c; font-weight: 500; }
+  .btn.primary:hover { background: #ddd0a0; }
+
+  /* ── SETUP SCREEN ── */
+  .setup-screen {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .setup-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 40px 48px 36px;
+    width: 100%;
+    max-width: 520px;
+  }
+
+  .setup-card h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.8rem;
+    letter-spacing: 0.15em;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .setup-card .subtitle {
+    color: var(--text-dim);
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 32px;
+  }
+
+  .setup-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px 24px;
+    margin-bottom: 32px;
+  }
+
+  .setup-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .setup-field.full-width {
+    grid-column: 1 / -1;
+  }
+
+  .setup-field label {
+    font-size: 0.7rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .setup-select, .setup-input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.9rem;
+    border-radius: 3px;
+    padding: 8px 10px;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    transition: border-color 0.15s;
+    width: 100%;
+  }
+  .setup-select:hover, .setup-select:focus,
+  .setup-input:hover,  .setup-input:focus {
+    border-color: var(--accent);
+  }
+
+  .setup-start {
+    width: 100%;
+    background: var(--accent);
+    border: none;
+    color: #0f0e0c;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 0.15em;
+    padding: 14px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .setup-start:hover { background: #ddd0a0; }
+
+  .tab-out {
+    margin-top: 24px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 20px 24px;
+    display: none;
+  }
+  .tab-out h3 {
+    font-family: 'Bebas Neue', sans-serif;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    font-size: 1rem;
+    margin-bottom: 12px;
+  }
+  .tab-text {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.85rem;
+    color: var(--text);
+    line-height: 1.9;
+    white-space: pre;
+    overflow-x: auto;
+  }
+
+  /* ══════════════════════════════════════
+     PLAYER BAR
+  ══════════════════════════════════════ */
+
+  .player-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    height: 80px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 16px;
+    z-index: 200;
+    overflow-x: auto;
+  }
+
+  .pb-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3px;
+    flex-shrink: 0;
+  }
+
+  .pb-label {
+    font-size: 0.55rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+
+  .pb-divider {
+    width: 1px;
+    height: 40px;
+    background: var(--border);
+    flex-shrink: 0;
+  }
+
+  .pb-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.75rem;
+    padding: 5px 12px;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .pb-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .pb-btn.active { background: var(--accent); border-color: var(--accent); color: #0f0e0c; }
+  .pb-btn.play-btn {
+    font-size: 1.1rem;
+    padding: 5px 14px;
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .pb-btn.play-btn.active {
+    background: var(--accent);
+    color: #0f0e0c;
+  }
+
+  .pb-input {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.8rem;
+    border-radius: 3px;
+    padding: 4px 6px;
+    outline: none;
+    text-align: center;
+    transition: border-color 0.15s;
+  }
+  .pb-input:focus { border-color: var(--accent); }
+  .pb-input.w40  { width: 48px; }
+  .pb-input.w32  { width: 38px; }
+
+  .pb-select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.7rem;
+    border-radius: 3px;
+    padding: 4px 5px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    text-align: center;
+  }
+  .pb-select:focus { border-color: var(--accent); color: var(--accent); }
+
+  .pb-status {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.7rem;
+    color: var(--accent);
+    opacity: 0.8;
+    white-space: nowrap;
+    min-width: 120px;
+    text-align: center;
+  }
+
+  /* Playhead */
+  #playhead {
+    position: absolute;
+    top: 0;
+    width: 2px;
+    background: var(--accent);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 50;
+    transition: opacity 0.1s;
+    box-shadow: 0 0 6px var(--accent);
+  }
+  #playhead.visible { opacity: 0.85; }
+
+  /* Rhythm recorder: note cells with no fret yet show a placeholder bar */
+  .cell-rhythm-note .cell-bg {
+    background: rgba(200,185,122,0.08);
+    border-top: 2px solid var(--accent);
+    border-bottom: 2px solid var(--accent);
+    opacity: 0.6;
+  }
+
+
+  /* ══════════════════════════════════════
+     LIBRARY / SAVE MODALS
+  ══════════════════════════════════════ */
+
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    z-index: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.hidden { display: none; }
+
+  .modal-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 28px 32px 24px;
+    width: 100%;
+    max-width: 560px;
+    max-height: 85vh;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .modal-card.wide { max-width: 780px; }
+
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .modal-header h2 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+  }
+  .modal-close {
+    background: none;
+    border: none;
+    color: var(--text-dim);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 2px 6px;
+    border-radius: 3px;
+    transition: color 0.15s;
+  }
+  .modal-close:hover { color: var(--text); }
+
+  .modal-body { overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 14px; }
+
+  .form-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+  .form-field label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: var(--text-dim);
+  }
+  .form-input, .form-textarea, .form-select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.88rem;
+    border-radius: 3px;
+    padding: 8px 10px;
+    outline: none;
+    transition: border-color 0.15s;
+    width: 100%;
+    appearance: none;
+    -webkit-appearance: none;
+  }
+  .form-input:focus, .form-textarea:focus, .form-select:focus { border-color: var(--accent); }
+  .form-textarea { resize: vertical; min-height: 64px; font-size: 0.82rem; }
+
+  .tag-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+  .tag-chip {
+    font-size: 0.68rem;
+    font-family: 'Courier Prime', monospace;
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.12s;
+    user-select: none;
+  }
+  .tag-chip:hover { border-color: var(--accent); color: var(--accent); }
+  .tag-chip.on { background: var(--accent); border-color: var(--accent); color: var(--fret-text); }
+
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  .modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* Library grid */
+  .lick-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px;
+    overflow-y: auto;
+    max-height: 50vh;
+  }
+  .lick-card {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 12px 14px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .lick-card:hover { border-color: var(--accent); }
+  .lick-card-title {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    font-size: 0.88rem;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .lick-card-meta {
+    font-size: 0.62rem;
+    color: var(--text-dim);
+    font-family: 'Courier Prime', monospace;
+  }
+  .lick-card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 3px;
+    margin-top: 2px;
+  }
+  .lick-card-tag {
+    font-size: 0.58rem;
+    font-family: 'Courier Prime', monospace;
+    padding: 1px 6px;
+    border-radius: 10px;
+    background: rgba(200,185,122,0.12);
+    color: var(--accent);
+  }
+  .lick-card-actions {
+    display: flex;
+    gap: 5px;
+    margin-top: 4px;
+  }
+  .lick-action-btn {
+    flex: 1;
+    font-size: 0.62rem;
+    font-family: 'DM Sans', sans-serif;
+    padding: 3px 6px;
+    border-radius: 2px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    transition: all 0.12s;
+    text-align: center;
+  }
+  .lick-action-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .lick-action-btn.danger:hover { border-color: #e05555; color: #e05555; }
+
+  .lib-filters {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .lib-search {
+    flex: 1;
+    min-width: 140px;
+  }
+  .lib-empty {
+    text-align: center;
+    padding: 40px 20px;
+    color: var(--text-dim);
+    font-size: 0.82rem;
+    font-family: 'Courier Prime', monospace;
+  }
+
+  /* ── RHYTHM RECORDER ── */
+  .rhythm-recorder {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 14px 18px;
+    margin-top: 14px;
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .rhythm-recorder.open { display: flex; }
+
+  .rr-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .rr-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+  }
+
+  .rr-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .rr-status {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.72rem;
+    color: var(--accent);
+    min-width: 160px;
+    text-align: center;
+    padding: 4px 10px;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    background: var(--surface);
+  }
+
+  .rr-tap-zone {
+    background: var(--surface);
+    border: 2px dashed var(--border);
+    border-radius: 4px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem;
+    letter-spacing: 0.15em;
+    color: var(--text-dim);
+    cursor: pointer;
+    user-select: none;
+    transition: border-color 0.1s, background 0.1s;
+  }
+  .rr-tap-zone.armed {
+    border-color: var(--accent);
+    border-style: solid;
+    color: var(--accent);
+  }
+  .rr-tap-zone.tapped {
+    background: rgba(200,185,122,0.12);
+    border-color: var(--accent);
+  }
+
+  .rr-progress {
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .rr-progress-bar {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.05s linear;
+  }
+
+  /* flash the tap zone on each tap */
+  @keyframes tapFlash {
+    0%   { background: rgba(200,185,122,0.28); }
+    100% { background: rgba(200,185,122,0.08); }
+  }
+  .rr-tap-zone.flash { animation: tapFlash 0.12s ease-out; }
+  .confirm-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .confirm-overlay.hidden { display: none; }
+
+  /* ══════════════════════════════════════
+     FRETBOARD
+  ══════════════════════════════════════ */
+
+  .fretboard-wrap {
+    width: 100%;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 20px 16px;
+    display: none;
+  }
+  .fretboard-wrap.open { display: block; }
+
+  .fretboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .fretboard-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+  }
+  .fretboard-hint {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.62rem;
+    color: var(--text-dim);
+    letter-spacing: 0.06em;
+  }
+
+  .fretboard-scroll { overflow-x: auto; padding-bottom: 4px; }
+
+  .fretboard-grid {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 0;
+    user-select: none;
+    position: relative;
+  }
+
+  /* ── Fretboard grid layout ── */
+  .fretboard-grid {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 0;
+    user-select: none;
+    position: relative;
+    background: #b8922e;
+    border-radius: 4px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.6);
+  }
+
+  /* Fret number row at BOTTOM */
+  .fb-fret-row {
+    display: flex;
+    order: 99;
+    background: #1a1714;
+    padding: 4px 0 5px;
+  }
+  .fb-fret-label {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.58rem;
+    color: #7a7060;
+    text-align: center;
+    flex-shrink: 0;
+    line-height: 1;
+  }
+  .fb-fret-label.fb-fret-open {
+    font-size: 0.48rem;
+    color: #5a5248;
+  }
+  .fb-fret-label.fb-fret-marker {
+    color: #c8a84b;
+    font-weight: 700;
+  }
+
+  /* Each string row — sits on top of the wood background */
+  .fb-string-row {
+    display: flex;
+    align-items: center;
+    height: 46px;
+    position: relative;
+    background: linear-gradient(180deg,
+      rgba(0,0,0,0.08) 0%,
+      rgba(184,146,46,0) 20%,
+      rgba(184,146,46,0) 80%,
+      rgba(0,0,0,0.10) 100%
+    );
+  }
+  .fb-string-row:first-of-type {
+    border-top: 2px solid rgba(0,0,0,0.25);
+  }
+
+  /* String name label */
+  .fb-string-name {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: #e8e0c8;
+    width: 36px;
+    text-align: right;
+    padding-right: 8px;
+    flex-shrink: 0;
+    z-index: 2;
+    background: #1a1714;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+  }
+
+  /* String line — varying thickness per string */
+  .fb-string-cells {
+    display: flex;
+    position: relative;
+    height: 46px;
+    align-items: center;
+    flex: 1;
+  }
+  .fb-string-cells::before {
+    content: '';
+    position: absolute;
+    left: 0; right: 0; top: 50%;
+    pointer-events: none;
+    z-index: 0;
+    transform: translateY(-50%);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  }
+  /* String thickness by data-si */
+  .fb-string-row[data-si="0"] .fb-string-cells::before { height: 1px; background: #e8e0d0; }
+  .fb-string-row[data-si="1"] .fb-string-cells::before { height: 1px; background: #ddd8c4; }
+  .fb-string-row[data-si="2"] .fb-string-cells::before { height: 2px; background: #d0c8b0; }
+  .fb-string-row[data-si="3"] .fb-string-cells::before { height: 2px; background: #c8b898; }
+  .fb-string-row[data-si="4"] .fb-string-cells::before { height: 3px; background: #b8a878; }
+  .fb-string-row[data-si="5"] .fb-string-cells::before { height: 3px; background: #a89868; }
+
+  /* Individual fret cell */
+  .fb-cell {
+    flex-shrink: 0;
+    width: 56px;
+    height: 46px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+    cursor: pointer;
+  }
+  .fb-cell:hover { background: rgba(255,255,255,0.06); }
+
+  /* Fret wires — right edge of each cell */
+  .fb-cell::after {
+    content: '';
+    position: absolute;
+    right: 0; top: 4px; bottom: 4px;
+    width: 2px;
+    background: linear-gradient(180deg, #d4c090, #c8b070, #d4c090);
+    border-radius: 1px;
+    pointer-events: none;
+    z-index: 0;
+    box-shadow: 0 0 3px rgba(200,180,100,0.3);
+  }
+  /* Open column — no fret wire, just the nut */
+  .fb-cell.fb-nut::after {
+    width: 6px;
+    background: linear-gradient(180deg, #f0e8d0, #e0d4b0, #f0e8d0);
+    top: 0; bottom: 0;
+    border-radius: 0;
+    box-shadow: 2px 0 6px rgba(0,0,0,0.4);
+  }
+  .fb-cell.fb-octave::after {
+    width: 5px;
+    background: linear-gradient(180deg, #e8d8a0, #d4c080, #e8d8a0);
+    top: 0; bottom: 0;
+    border-radius: 0;
+  }
+
+  /* The note badge — circular */
+  .fb-note {
+    position: relative;
+    z-index: 2;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 0.7rem;
+    background: rgba(184,146,46,0.5);
+    color: transparent;
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.08s, box-shadow 0.08s, background 0.1s;
+    flex-shrink: 0;
+  }
+  .fb-cell:hover .fb-note {
+    background: rgba(255,255,255,0.15);
+    transform: scale(1.1);
+  }
+  .fb-cell:active .fb-note { transform: scale(0.92); }
+  .fb-note.playing {
+    background: #fff !important;
+    color: #0f0e0c !important;
+    transform: scale(1.2);
+    box-shadow: 0 0 12px rgba(255,255,255,0.6);
+  }
+
+  /* ── Fretboard controls row (root / scale / position dropdowns) ── */
+  .fb-controls {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+  }
+  .fb-ctrl-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .fb-ctrl-label {
+    font-size: 0.65rem;
+    text-transform: uppercase;
+    letter-spacing: 0.09em;
+    color: var(--text-dim);
+    white-space: nowrap;
+  }
+  .fb-ctrl-select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.75rem;
+    border-radius: 3px;
+    padding: 4px 8px;
+    outline: none;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    transition: border-color 0.15s;
+  }
+  .fb-ctrl-select:focus { border-color: var(--accent); }
+  .fb-ctrl-sep {
+    width: 1px;
+    height: 20px;
+    background: var(--border);
+    flex-shrink: 0;
+  }
+  .fb-ctrl-clear {
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 3px 10px;
+    cursor: pointer;
+    transition: color 0.15s, border-color 0.15s;
+  }
+  .fb-ctrl-clear:hover { color: var(--accent); border-color: var(--accent); }
+
+  /* ── Note badge scale states ── */
+
+  /* Root note — blue circle, white text, bright */
+  .fb-note.fb-root {
+    background: #4a90d9;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(74,144,217,0.5);
+  }
+  /* Root outside active position — dimmed blue */
+  .fb-note.fb-root-dim {
+    background: #2a5080;
+    color: #7ab0e8;
+    opacity: 0.6;
+    box-shadow: none;
+  }
+  /* Scale tone in active position — green circle */
+  .fb-note.fb-in-pos {
+    background: #3a9e5a;
+    color: #fff;
+    box-shadow: 0 2px 6px rgba(58,158,90,0.4);
+  }
+  /* Scale tone outside active position — dim green */
+  .fb-note.fb-in-scale {
+    background: #1e5a32;
+    color: #6aba88;
+    opacity: 0.65;
+    box-shadow: none;
+  }
+  /* Outside scale — barely visible */
+  .fb-note.fb-out {
+    background: rgba(0,0,0,0.25);
+    color: transparent;
+    box-shadow: none;
+    opacity: 0.2;
+  }
+
+  /* Fret marker inlay dots — between G and D strings */
+  .fb-dot-marker {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #e8d898;
+    opacity: 0.7;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 3;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,0.3);
+  }
+
+  /* ══════════════════════════════════════
+     CHORD PROGRESSION ROW
+  ══════════════════════════════════════ */
+  .chord-prog-header { display:flex; align-items:center; gap:8px; margin-bottom:4px; }
+  .chord-prog-label { font-size:0.58rem; text-transform:uppercase; letter-spacing:0.1em; color:var(--text-dim); font-family:'Courier Prime',monospace; }
+  .chord-prog-toggle { font-family:'Courier Prime',monospace; font-size:0.6rem; color:var(--text-dim); background:none; border:1px solid var(--border); border-radius:3px; padding:2px 8px; cursor:pointer; transition:all 0.12s; }
+  .chord-prog-toggle.on { color:var(--accent); border-color:var(--accent); }
+  .chord-prog-toggle:hover { border-color:var(--accent); color:var(--accent); }
+  .chord-prog-wrap { overflow-x:auto; padding-bottom:2px; margin-bottom:6px; }
+  .chord-prog-row { display:inline-flex; align-items:stretch; height:36px; user-select:none; flex-shrink:0; }
+  .chord-prog-spacer { flex-shrink:0; width:36px; }
+  .chord-prog-cap { width:2px; flex-shrink:0; background:var(--bar-line); opacity:0.5; align-self:stretch; }
+  .chord-cell { flex-shrink:0; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; border-top:2px solid transparent; border-bottom:2px solid transparent; background:var(--surface2); border-left:1px solid var(--border); transition:background 0.15s,border-color 0.15s; position:relative; gap:5px; overflow:hidden; }
+  .chord-cell:hover { background:rgba(200,185,122,0.08); border-top-color:var(--accent); }
+  .chord-cell.active { background:rgba(200,185,122,0.14); border-top-color:var(--accent); border-bottom-color:var(--accent); }
+  .chord-cell.empty { opacity:0.35; }
+  .chord-cell-roman { font-family:'Courier Prime',monospace; font-size:0.5rem; color:var(--text-dim); line-height:1; flex-shrink:0; }
+  .chord-cell-name { font-family:'Bebas Neue',sans-serif; font-size:0.8rem; letter-spacing:0.04em; color:var(--accent); line-height:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .chord-cell.empty .chord-cell-name { font-family:'Courier Prime',monospace; font-size:0.7rem; color:var(--text-dim); opacity:0.5; }
+  .chord-popup { position:fixed; z-index:500; background:var(--surface2); border:1.5px solid var(--accent); border-radius:6px; padding:10px; box-shadow:0 8px 32px rgba(0,0,0,0.8); display:none; flex-direction:column; gap:8px; min-width:220px; }
+  .chord-popup.open { display:flex; }
+  .chord-popup-title { font-family:'Bebas Neue',sans-serif; font-size:0.85rem; letter-spacing:0.1em; color:var(--accent); padding-bottom:6px; border-bottom:1px solid var(--border); }
+  .chord-popup-degrees { display:grid; grid-template-columns:repeat(4,1fr); gap:4px; }
+  .chord-degree-btn { font-family:'Courier Prime',monospace; font-size:0.7rem; padding:5px 4px; border-radius:3px; border:1px solid var(--border); background:var(--surface); color:var(--text-dim); cursor:pointer; text-align:center; transition:all 0.1s; display:flex; flex-direction:column; align-items:center; gap:1px; }
+  .chord-degree-btn:hover { border-color:var(--accent); color:var(--accent); background:rgba(200,185,122,0.08); }
+  .chord-degree-btn.selected { background:var(--accent); border-color:var(--accent); color:#0f0e0c; }
+  .chord-degree-btn .deg-roman { font-size:0.65rem; font-weight:700; }
+  .chord-degree-btn .deg-name { font-size:0.55rem; opacity:0.8; }
+  .chord-popup-clear { font-family:'Courier Prime',monospace; font-size:0.65rem; color:var(--text-dim); background:none; border:1px solid var(--border); border-radius:3px; padding:4px 8px; cursor:pointer; text-align:center; transition:all 0.12s; }
+  .chord-popup-clear:hover { color:#e05555; border-color:#e05555; }
+
+  .confirm-card {
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    border-radius: 5px;
+    padding: 24px 28px;
+    max-width: 340px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .editor-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+  .editor-toolbar-label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+  }
+  .editor-toolbar-select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Courier Prime', monospace;
+    font-size: 0.82rem;
+    border-radius: 3px;
+    padding: 5px 8px;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .editor-toolbar-select:hover,
+  .editor-toolbar-select:focus { border-color: var(--accent); color: var(--accent); }
+  .editor-toolbar-sep {
+    width: 1px;
+    height: 20px;
+    background: var(--border);
+    flex-shrink: 0;
+  }
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+</head>
+<body>
+
+<!-- ── HOME SCREEN ── -->
+<div class="home-screen" id="homeScreen">
+  <div class="home-logo">
+    <h1>Lick Lab</h1>
+    <p>Guitar Practice Tool</p>
+  </div>
+  <div class="home-btns">
+    <div class="home-btn" onclick="goToCreate()">
+      <div class="home-btn-icon">✏️</div>
+      <div class="home-btn-label">Create</div>
+      <div class="home-btn-sub">Write & edit guitar licks</div>
+    </div>
+    <div class="home-btn" onclick="goToPractice()">
+      <div class="home-btn-icon">🎸</div>
+      <div class="home-btn-label">Practice</div>
+      <div class="home-btn-sub">Load a session & play along</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── APP SHELL ── -->
+<div class="app-shell hidden" id="appShell">
+
+  <!-- Top nav -->
+  <nav class="top-nav">
+    <div class="top-nav-logo" onclick="goHome()">Lick Lab</div>
+    <div class="top-nav-tabs">
+      <div class="nav-tab active" id="navCreate" onclick="switchTab('create')">Create</div>
+      <div class="nav-tab" id="navPractice" onclick="switchTab('practice')">Practice</div>
+    </div>
+    <div class="nav-tab" id="navFretboard" onclick="toggleFretboard()" style="margin-left:auto;">🎸 Fretboard</div>
+  </nav>
+
+  <!-- ── FRETBOARD PANEL ── -->
+  <div class="fretboard-wrap" id="fretboardWrap">
+    <div class="fretboard-header">
+      <div class="fretboard-title">Fretboard</div>
+      <div class="fretboard-hint">Click any note to hear it · Uses current guitar tone &amp; tuning</div>
+    </div>
+
+    <!-- Controls -->
+    <div class="fb-controls">
+      <div class="fb-ctrl-group">
+        <span class="fb-ctrl-label">Root</span>
+        <select class="fb-ctrl-select" id="fbRoot">
+          <option value="">— none —</option>
+          <option value="0">C</option>
+          <option value="1">C# / Db</option>
+          <option value="2">D</option>
+          <option value="3">D# / Eb</option>
+          <option value="4">E</option>
+          <option value="5">F</option>
+          <option value="6">F# / Gb</option>
+          <option value="7">G</option>
+          <option value="8">G# / Ab</option>
+          <option value="9">A</option>
+          <option value="10">A# / Bb</option>
+          <option value="11">B</option>
+        </select>
+      </div>
+      <div class="fb-ctrl-group">
+        <span class="fb-ctrl-label">Scale</span>
+        <select class="fb-ctrl-select" id="fbScale" style="min-width:140px;">
+          <option value="">— none —</option>
+          <optgroup label="Common">
+            <option value="major">Major (Ionian)</option>
+            <option value="natural_minor">Natural Minor (Aeolian)</option>
+            <option value="harmonic_minor">Harmonic Minor</option>
+            <option value="melodic_minor">Melodic Minor</option>
+            <option value="pentatonic_major">Pentatonic Major</option>
+            <option value="pentatonic_minor">Pentatonic Minor</option>
+            <option value="blues">Blues</option>
+          </optgroup>
+          <optgroup label="Modes">
+            <option value="dorian">Dorian</option>
+            <option value="phrygian">Phrygian</option>
+            <option value="lydian">Lydian</option>
+            <option value="mixolydian">Mixolydian</option>
+            <option value="locrian">Locrian</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="fb-ctrl-group">
+        <span class="fb-ctrl-label">Position</span>
+        <select class="fb-ctrl-select" id="fbPosition">
+          <option value="all">All</option>
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+          <option value="4">4</option>
+          <option value="5">5</option>
+        </select>
+      </div>
+      <div class="fb-ctrl-sep"></div>
+      <button class="fb-ctrl-clear" onclick="clearFretboardFilter()">Clear</button>
+    </div>
+
+    <div class="fretboard-scroll">
+      <div class="fretboard-grid" id="fretboardGrid"></div>
+    </div>
+  </div>
+
+  <!-- ── CREATE PANEL ── -->
+  <div class="tab-panel active" id="panelCreate">
+
+    <!-- Setup screen (shown inside create panel) -->
+    <div class="setup-screen" id="setupScreen" style="position:relative;inset:auto;background:transparent;padding:0;z-index:1;">
+      <div class="setup-card">
+        <h2>New Lick</h2>
+        <p class="subtitle">Configure your tab</p>
+        <div class="setup-fields">
+          <div class="setup-field">
+            <label>Number of Bars</label>
+            <select class="setup-select" id="setupBars">
+              <option value="1">1 bar</option>
+              <option value="2" selected>2 bars</option>
+              <option value="4">4 bars</option>
+              <option value="8">8 bars</option>
+              <option value="16">16 bars</option>
+            </select>
+          </div>
+          <div class="setup-field">
+            <label>Time Signature</label>
+            <select class="setup-select" id="setupTimeSig">
+              <option value="4/4" selected>4/4</option>
+              <option value="3/4">3/4</option>
+              <option value="5/4">5/4</option>
+              <option value="6/8">6/8</option>
+              <option value="7/8">7/8</option>
+            </select>
+          </div>
+          <div class="setup-field">
+            <label>Root</label>
+            <select class="setup-select" id="setupRoot">
+              <option value="C">C</option>
+              <option value="C#">C#</option>
+              <option value="Db">Db</option>
+              <option value="D">D</option>
+              <option value="D#">D#</option>
+              <option value="Eb">Eb</option>
+              <option value="E">E</option>
+              <option value="F">F</option>
+              <option value="F#">F#</option>
+              <option value="Gb">Gb</option>
+              <option value="G">G</option>
+              <option value="G#">G#</option>
+              <option value="Ab">Ab</option>
+              <option value="A">A</option>
+              <option value="A#">A#</option>
+              <option value="Bb">Bb</option>
+              <option value="B">B</option>
+            </select>
+          </div>
+          <div class="setup-field">
+            <label>Scale</label>
+            <select class="setup-select" id="setupScale">
+              <optgroup label="Common">
+                <option value="major">Major</option>
+                <option value="natural_minor">Natural Minor</option>
+                <option value="harmonic_minor">Harmonic Minor</option>
+                <option value="melodic_minor">Melodic Minor</option>
+                <option value="pentatonic_major">Pentatonic Major</option>
+                <option value="pentatonic_minor">Pentatonic Minor</option>
+                <option value="blues">Blues</option>
+              </optgroup>
+              <optgroup label="Modes">
+                <option value="dorian">Dorian</option>
+                <option value="phrygian">Phrygian</option>
+                <option value="lydian">Lydian</option>
+                <option value="mixolydian">Mixolydian</option>
+                <option value="locrian">Locrian</option>
+              </optgroup>
+            </select>
+          </div>
+          <div class="setup-field">
+            <label>Tuning</label>
+            <select class="setup-select" id="setupTuning">
+              <option value="standard">Standard (EADGBe)</option>
+              <option value="dropD">Drop D (DADGBe)</option>
+              <option value="halfDown">Half step down (Eb)</option>
+              <option value="fullDown">Full step down (D)</option>
+              <option value="openG">Open G (DGDGBd)</option>
+              <option value="openD">Open D (DADf#Ad)</option>
+              <option value="dadgad">DADGAD</option>
+            </select>
+          </div>
+        </div>
+        <button class="setup-start" onclick="startEditor()">Start →</button>
+      </div>
+    </div>
+
+    <div class="editor-wrap" id="editorWrap" style="display:none;">
+
+      <!-- ── Editor toolbar: live root + scale ── -->
+      <div class="editor-toolbar">
+        <span class="editor-toolbar-label">Root</span>
+        <select class="editor-toolbar-select" id="editorRoot" onchange="onEditorKeyChange()">
+          <option value="C">C</option>
+          <option value="C#">C#</option>
+          <option value="Db">Db</option>
+          <option value="D">D</option>
+          <option value="D#">D#</option>
+          <option value="Eb">Eb</option>
+          <option value="E">E</option>
+          <option value="F">F</option>
+          <option value="F#">F#</option>
+          <option value="Gb">Gb</option>
+          <option value="G">G</option>
+          <option value="G#">G#</option>
+          <option value="Ab">Ab</option>
+          <option value="A">A</option>
+          <option value="A#">A#</option>
+          <option value="Bb">Bb</option>
+          <option value="B">B</option>
+        </select>
+        <span class="editor-toolbar-label">Scale</span>
+        <select class="editor-toolbar-select" id="editorScale" onchange="onEditorKeyChange()">
+          <optgroup label="Common">
+            <option value="major">Major</option>
+            <option value="natural_minor">Natural Minor</option>
+            <option value="harmonic_minor">Harmonic Minor</option>
+            <option value="melodic_minor">Melodic Minor</option>
+            <option value="pentatonic_major">Pentatonic Major</option>
+            <option value="pentatonic_minor">Pentatonic Minor</option>
+            <option value="blues">Blues</option>
+          </optgroup>
+          <optgroup label="Modes">
+            <option value="dorian">Dorian</option>
+            <option value="phrygian">Phrygian</option>
+            <option value="lydian">Lydian</option>
+            <option value="mixolydian">Mixolydian</option>
+            <option value="locrian">Locrian</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <div class="chord-prog-header">
+      <span class="chord-prog-label">Chord Progression</span>
+      <button class="chord-prog-toggle" id="chordProgToggle" onclick="toggleChordProg()">off</button>
+    </div>
+    <div class="chord-prog-wrap" id="chordProgWrap">
+      <div class="chord-prog-row" id="chordProgRow"></div>
+    </div>
+    <div class="tab-scroll">
+        <div class="tab-grid" id="tabGrid"></div>
+      </div>
+      <div class="bottom-bar">
+        <button class="btn" onclick="backToSetup()">⚙ Settings</button>
+        <button class="btn" onclick="clearAll()">Clear All</button>
+        <button class="btn" onclick="toggleRhythmRecorder()">🥁 Rhythm</button>
+        <button class="btn" onclick="openLibrary()">📚 Library</button>
+        <button class="btn" onclick="openSaveModal()">💾 Save</button>
+        <button class="btn primary" onclick="generateTab()">Generate Tab Text</button>
+      </div>
+
+      <!-- Rhythm Recorder panel -->
+      <div class="rhythm-recorder" id="rhythmRecorder">
+        <div class="rr-header">
+          <div class="rr-title">Rhythm Recorder</div>
+          <div class="rr-controls">
+            <span style="font-size:0.68rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;">Quantize</span>
+            <select class="pb-select" id="rrQuantize" style="width:80px;">
+              <option value="24">1/4</option>
+              <option value="12" selected>1/8</option>
+              <option value="6">1/16</option>
+              <option value="3">1/32</option>
+            </select>
+            <span style="font-size:0.68rem;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.08em;">Count-in</span>
+            <select class="pb-select" id="rrCountin" style="width:70px;">
+              <option value="0">Off</option>
+              <option value="1" selected>1 bar</option>
+              <option value="2">2 bars</option>
+            </select>
+            <button class="btn primary" id="rrStartBtn" onclick="startRhythmRecord()">Start</button>
+            <button class="btn" id="rrCheckBtn" onclick="checkRhythm()" style="display:none;">▶ Check</button>
+            <button class="btn" onclick="cancelRhythmRecord()">Cancel</button>
+          </div>
+        </div>
+        <div class="rr-status" id="rrStatus">Ready — tap or press Space to start</div>
+        <div class="rr-tap-zone" id="rrTapZone" onclick="rrTapOrStart()">
+          Click here or press Space to start / tap
+        </div>
+        <div class="rr-progress"><div class="rr-progress-bar" id="rrProgressBar"></div></div>
+      </div>
+      <div class="tab-out" id="tabOut">
+        <h3>Plain Text Tab</h3>
+        <div class="tab-text" id="tabText"></div>
+      </div>
+    </div>
+
+  </div><!-- end panelCreate -->
+
+  <!-- ── PRACTICE PANEL ── -->
+  <div class="tab-panel" id="panelPractice">
+    <div class="practice-layout">
+
+      <!-- Session builder -->
+      <div class="practice-session">
+        <h3>Session</h3>
+        <div class="session-controls">
+          <button class="btn" onclick="openSessionLibrary()">＋ Add Licks</button>
+          <button class="btn" onclick="clearSession()">Clear</button>
+          <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+            <span style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-dim);">Transpose to</span>
+            <select class="form-select" id="practiceKey" style="width:110px;" onchange="onPracticeKeyChange()">
+              <option value="">— original —</option>
+              <option value="C">C</option>
+              <option value="C#">C#</option>
+              <option value="Db">Db</option>
+              <option value="D">D</option>
+              <option value="Eb">Eb</option>
+              <option value="E">E</option>
+              <option value="F">F</option>
+              <option value="F#">F#</option>
+              <option value="Gb">Gb</option>
+              <option value="G">G</option>
+              <option value="Ab">Ab</option>
+              <option value="A">A</option>
+              <option value="Bb">Bb</option>
+              <option value="B">B</option>
+            </select>
+          </div>
+        </div>
+        <div class="session-lick-list" id="sessionLickList">
+          <div class="session-empty">No licks in session — add from your library.</div>
+        </div>
+      </div>
+
+      <!-- Tab viewer -->
+      <div class="practice-tab-wrap" id="practiceTabWrap">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+          <div style="font-family:'Bebas Neue',sans-serif;font-size:1rem;letter-spacing:0.12em;color:var(--accent);" id="practiceLickTitle">No lick loaded</div>
+          <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+            <!-- Bar loop range -->
+            <span style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.08em;color:var(--text-dim);">Loop bars</span>
+            <input class="pb-input" id="loopBarFrom" type="number" min="1" value="1" style="width:42px;" title="From bar">
+            <span style="color:var(--text-dim);font-size:0.75rem;">→</span>
+            <input class="pb-input" id="loopBarTo" type="number" min="1" value="2" style="width:42px;" title="To bar">
+            <div class="pb-divider" style="height:24px;"></div>
+            <!-- Hide tab -->
+            <button class="pb-btn" id="hideTabBtn" onclick="toggleHideTab()">Show tab</button>
+          </div>
+        </div>
+        <div class="tab-scroll">
+          <div class="tab-grid" id="practiceTabGrid"></div>
+        </div>
+        <div class="hidden-tab-overlay">TAB HIDDEN</div>
+      </div>
+
+    </div>
+  </div><!-- end panelPractice -->
+
+</div><!-- end appShell -->
+
+<div id="fretPopup">
+  <input type="text" id="fretField" maxlength="2" placeholder="—" autocomplete="off">
+  <div class="hint">0–24 · blank = rest · Enter</div>
+</div>
+
+<script>
+'use strict';
+
+// ═══════════════════════════════════════════
+//  CONSTANTS
+// ═══════════════════════════════════════════
+
+// ── Mutable settings (set by setup screen) ──
+// declared as `var` (not `let`) so the EditorState bridge in DOMContentLoaded
+// can redefine them as getters/setters via Object.defineProperty on window.
+let NUM_BARS       = 2;
+let BEATS_PER_BAR  = 4;
+let SLOTS_PER_BEAT = 24;
+let SLOTS_PER_BAR  = 96;  // updated by applySettings = BEATS_PER_BAR * SLOTS_PER_BEAT
+let TOTAL_SLOTS    = NUM_BARS * SLOTS_PER_BAR;
+let USE_FLATS      = false; // set by key selection
+let CURRENT_KEY    = 'C';   // root note name e.g. 'C', 'F#', 'Bb'
+let CURRENT_SCALE  = 'major'; // scale key e.g. 'major', 'natural_minor', 'dorian'
+
+let STRINGS = ['e','B','G','D','A','E']; // may change with tuning
+
+// ── Note name lookup ──
+// Open string notes in semitones (0=C): high e=E(4) B=B(11) G=G(7) D=D(2) A=A(9) E=E(4)
+const CHROMATIC_SHARP = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+const CHROMATIC_FLAT  = ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B'];
+const FLAT_ROOTS = ['F','Bb','Eb','Ab','Db','Gb'];
+
+// Root note name → pitch class (0=C)
+const ROOT_TO_PC = {
+  'C':0,'C#':1,'Db':1,'D':2,'D#':3,'Eb':3,'E':4,'F':5,
+  'F#':6,'Gb':6,'G':7,'G#':8,'Ab':8,'A':9,'A#':10,'Bb':10,'B':11,
+};
+
+// Legacy key string → pitch class (kept for deserialise compat)
+const KEY_TO_PC = {
+  'C':0,'G':7,'D':2,'A':9,'E':4,'B':11,'F#':6,'F':5,'Bb':10,'Eb':3,'Ab':8,'Db':1,'Gb':6,
+  'Am':9,'Em':4,'Bm':11,'F#m':6,'Dm':2,'Gm':7,'Cm':0,
+};
+const KEY_TO_SCALE = {
+  'C':'major','G':'major','D':'major','A':'major','E':'major','B':'major',
+  'F#':'major','F':'major','Bb':'major','Eb':'major','Ab':'major','Db':'major','Gb':'major',
+  'Am':'natural_minor','Em':'natural_minor','Bm':'natural_minor','F#m':'natural_minor',
+  'Dm':'natural_minor','Gm':'natural_minor','Cm':'natural_minor',
+};
+
+const TUNINGS = {
+  standard: { strings: ['e','B','G','D','A','E'],        midi: [4,11,7,2,9,4]  },
+  dropD:    { strings: ['e','B','G','D','A','D'],        midi: [4,11,7,2,9,2]  },
+  halfDown: { strings: ['Eb','Bb','Gb','Db','Ab','Eb'],  midi: [3,10,6,1,8,3]  },
+  fullDown: { strings: ['D','A','F','C','G','D'],        midi: [2,9,5,0,7,2]   },
+  openG:    { strings: ['D','B','G','D','G','D'],        midi: [2,11,7,2,7,2]  },
+  openD:    { strings: ['D','A','F#','D','A','D'],       midi: [2,9,6,2,9,2]   },
+  dadgad:   { strings: ['D','A','G','D','A','D'],        midi: [2,9,7,2,9,2]   },
+};
+
+let OPEN_MIDI = [4,11,7,2,9,4]; // updated by applySettings
+
+// ═══════════════════════════════════════════════════════════
+// §1  MUSIC UTILITIES  — note names, slot/beat maths, tuning
+// ═══════════════════════════════════════════════════════════
+
+function noteName(stringIdx, fret) {
+  if (fret === null || fret === undefined) return '';
+  const chromatic = USE_FLATS ? CHROMATIC_FLAT : CHROMATIC_SHARP;
+  return chromatic[(OPEN_MIDI[stringIdx] + fret) % 12];
+}
+
+// Time signature definitions
+const TIME_SIGS = {
+  '4/4': { beats: 4, beatSlots: 24, label: '4/4' },
+  '3/4': { beats: 3, beatSlots: 24, label: '3/4' },
+  '5/4': { beats: 5, beatSlots: 24, label: '5/4' },
+  '6/8': { beats: 6, beatSlots: 12, label: '6/8' },
+  '7/8': { beats: 7, beatSlots: 12, label: '7/8' },
+};
+
+const BEAT_PX  = 60;
+let SLOT_PX  = BEAT_PX / SLOTS_PER_BEAT; // updated by applySettings
+
+// Base note slot values (on 96-slot grid)
+const BASE_SLOTS = { 'W':96, 'H':48, 'Q':24, 'E':12, 'S':6, 'T':3 };
+const BASE_LABELS = { 'W':'1/1', 'H':'1/2', 'Q':'1/4', 'E':'1/8', 'S':'1/16', 'T':'1/32' };
+const BASE_ORDER = ['W','H','Q','E','S','T'];
+
+// Flat list of all dropdown options
+const NV_OPTIONS = [];
+for (const base of BASE_ORDER) {
+  const lbl = BASE_LABELS[base];
+  NV_OPTIONS.push({ nv: base,         label: lbl          });
+  if (base !== 'T') {
+    NV_OPTIONS.push({ nv: base + '.',  label: lbl + ' ·'  });
+    NV_OPTIONS.push({ nv: base + 't',  label: lbl + ' ×3' });
+    NV_OPTIONS.push({ nv: base + '.t', label: lbl + ' ·×3'});
+  }
+}
+
+// Compute slots for base + dot + triplet
+function calcSlots(base, dot, triplet) {
+  let s = BASE_SLOTS[base];
+  if (dot)     s = s * 3 / 2;   // dotted = x1.5
+  if (triplet) s = s / 3;        // triplet = /3
+  return Math.round(s);
+}
+
+// Build NV-like object from base+dot+triplet
+function makeNvKey(base, dot, triplet) {
+  return base + (dot ? '.' : '') + (triplet ? 't' : '');
+}
+
+function decodeNvKey(key) {
+  const dot     = key.includes('.');
+  const triplet = key.includes('t');
+  const base    = key.replace('.t','').replace('.','').replace('t','');
+  return { base, dot, triplet };
+}
+
+// NV lookup (computed on the fly)
+const NV = {};
+for (const base of BASE_ORDER) {
+  for (const dot of [false, true]) {
+    for (const triplet of [false, true]) {
+      const slots = calcSlots(base, dot, triplet);
+      if (slots > 0 && Number.isInteger(slots)) {
+        const key = makeNvKey(base, dot, triplet);
+        NV[key] = { slots, base, dot, triplet };
+      }
+    }
+  }
+}
+
+// Ordered from largest to smallest for snapping
+const NV_ORDER = Object.entries(NV)
+  .sort((a,b) => b[1].slots - a[1].slots)
+  .map(([k]) => k);
+
+// ═══════════════════════════════════════════
+//  DATA MODEL
+//
+//  grid[N]    — each index holds a group ID (integer >= 1)
+//  groups Map — id -> { id, nv, notes[{string, interval, octave}], tied, isCont }
+//
+//  notes[] stores relative pitch: interval = semitones from root (0-11),
+//  octave = 0 for frets 0-11, 1 for frets 12-23.
+//  Frets are always DERIVED via fretAt(g, si) — never stored.
+//
+//  Invariant: grid is always fully covered, no gaps, no bar crossings
+//  (a single group never spans more than one bar).
+//  Bar-crossing notes are represented by TWO groups (same frets)
+//  where the second has isCont=true.
+// ═══════════════════════════════════════════
+
+// declared as `var` so the EditorState bridge can intercept via Object.defineProperty
+let grid   = new Int16Array(TOTAL_SLOTS);
+let groups = new Map();
+let nextId = 1;
+
+// ═══════════════════════════════════════════════════════════
+// §2  GRID MODEL  — group creation, slot filling, mutations
+// ═══════════════════════════════════════════════════════════
+
+// ── Relative note storage ──
+// Each group stores notes as { string, interval, octave }
+// where interval = semitones from root (0-11), octave = 0 (frets 0-11) or 1 (frets 12-23)
+// Fret is always DERIVED: fretAt(g, si)
+// This makes licks key-agnostic and enables transposition by just changing CURRENT_KEY
+
+function fretAt(g, si) {
+  if (!g || !g.notes) return null;
+  const note = g.notes.find(n => n.string === si);
+  if (!note) return null;
+  const rootPc   = ROOT_TO_PC[CURRENT_KEY] ?? 0;
+  const notePc   = (rootPc + note.interval) % 12;
+  const openPc   = OPEN_MIDI[si] % 12;
+  let fret = (notePc - openPc + 12) % 12;
+  fret += note.octave * 12;
+  return fret;
+}
+
+// Convert absolute fret + string → {interval, octave} given current key
+function fretToNote(si, fret) {
+  const rootPc   = ROOT_TO_PC[CURRENT_KEY] ?? 0;
+  const notePc   = (OPEN_MIDI[si] + fret) % 12;
+  const interval = (notePc - rootPc + 12) % 12;
+  const octave   = fret >= 12 ? 1 : 0;
+  return { interval, octave };
+}
+
+function makeGroup(nv, notes, tied, isCont) {
+  const id = nextId++;
+  groups.set(id, {
+    id,
+    nv,
+    notes: notes ? [...notes.map(n => ({...n}))] : [],
+    tied:  tied  || false,
+    isCont: isCont || false,
+  });
+  return id;
+}
+
+function fillSlots(start, len, gid) {
+  for (let i = start; i < start + len; i++) grid[i] = gid;
+}
+
+// ── Init: 8 quarter-note rest groups ──
+function initGrid() {
+  grid   = new Int16Array(TOTAL_SLOTS);
+  groups = new Map();
+  nextId = 1;
+  for (let s = 0; s < TOTAL_SLOTS; s += SLOTS_PER_BEAT) {
+    const gid = makeGroup('Q');
+    fillSlots(s, SLOTS_PER_BEAT, gid);
+  }
+}
+
+// ═══════════════════════════════════════════
+//  HELPERS
+// ═══════════════════════════════════════════
+
+// Get the run info for the group at `slot`
+function runAt(slot) {
+  const gid = grid[slot];
+  let start = slot;
+  while (start > 0 && grid[start - 1] === gid) start--;
+  let end = slot;
+  while (end < TOTAL_SLOTS - 1 && grid[end + 1] === gid) end++;
+  return { gid, start, end, len: end - start + 1 };
+}
+
+// Largest NV whose slots fit within `available`
+// Snap to largest clean note value that fits — never triplets
+// since triplets are intentional groupings, not rest-filling values
+const SNAP_ORDER = NV_ORDER.filter(k => !k.includes('t'));
+
+function snapNv(available) {
+  return SNAP_ORDER.find(k => NV[k].slots <= available) || 'T';
+}
+
+// Fill slots [start, start+len) with new rest groups, never crossing bar lines
+function fillWithRests(start, len) {
+  let s = start;
+  const stop = start + len;
+  while (s < stop) {
+    const barIdx  = Math.floor(s / SLOTS_PER_BAR);
+    const barEnd  = (barIdx + 1) * SLOTS_PER_BAR;
+    const avail   = Math.min(barEnd - s, stop - s);
+    const nv      = snapNv(avail);
+    const nvSlots = NV[nv].slots;
+    const gid     = makeGroup(nv);
+    fillSlots(s, nvSlots, gid);
+    s += nvSlots;
+  }
+}
+
+function changeNoteValue(slot, newNv) {
+  const { gid, start, end, len } = runAt(slot);
+  const g = groups.get(gid);
+
+  // Remove any existing continuation group
+  removeContinuationFor(gid);
+
+  // If this note is part of a triplet group, remove the whole triplet first
+  if (g.tripletGroup) {
+    removeTripletGroup(g.tripletGroup, start);
+    // After removal, re-find the run (it's now a rest)
+    const fresh = runAt(start);
+    return changeNoteValue(start, newNv);
+  }
+
+  const { base, dot, triplet } = decodeNvKey(newNv);
+  const barIdx     = Math.floor(start / SLOTS_PER_BAR);
+  const barEnd     = (barIdx + 1) * SLOTS_PER_BAR;
+  const slotsInBar = barEnd - start;
+  const wantSlots  = NV[newNv] ? NV[newNv].slots : calcSlots(base, dot, triplet);
+
+  // ── Triplet: divide the parent beat into 3 equal cells ──
+  if (triplet) {
+    // The beat the user clicked on
+    const beatSlot  = Math.floor(start / SLOTS_PER_BEAT) * SLOTS_PER_BEAT;
+    // Each triplet cell = exactly 1/3 of a beat (base value determines which beat unit)
+    // For 1/4 triplet: parent = 1 beat = SLOTS_PER_BEAT, cell = SLOTS_PER_BEAT/3 = 8
+    // For 1/8 triplet: parent = 1/2 beat = SLOTS_PER_BEAT/2,  cell = SLOTS_PER_BEAT/6 = 4
+    const baseSlots = BASE_SLOTS[base]; // slots for undotted, non-triplet base note
+    const dotMult   = dot ? 1.5 : 1;
+    const parentSlots = baseSlots * dotMult; // size of the group these 3 notes fill
+    const cellSlots   = Math.round(parentSlots / 3);
+
+    if (cellSlots <= 0) { render(); return; }
+
+    // Wipe slots [beatSlot .. beatSlot+parentSlots) by directly assigning new groups
+    // First collect all unique gids in that range and delete them
+    const toClear = new Set();
+    for (let s = beatSlot; s < beatSlot + parentSlots; s++) toClear.add(grid[s]);
+    toClear.forEach(id => groups.delete(id));
+
+    // Create exactly 3 triplet cells
+    const tgId = nextId++;
+    for (let i = 0; i < 3; i++) {
+      const s    = beatSlot + i * cellSlots;
+      const ngid = makeGroup(newNv);
+      groups.get(ngid).tripletGroup = tgId;
+      fillSlots(s, cellSlots, ngid);
+    }
+
+    // Fill remainder of beat if parentSlots < SLOTS_PER_BEAT
+    const afterTriplet = beatSlot + parentSlots;
+    const beatEnd      = beatSlot + SLOTS_PER_BEAT;
+    if (afterTriplet < beatEnd) {
+      fillWithRests(afterTriplet, beatEnd - afterTriplet);
+    }
+
+    pruneAndFixGroups();
+    render();
+    return;
+  }
+
+  // ── Normal (non-triplet) note ──
+  const mainSlots  = Math.min(wantSlots, slotsInBar);
+  const mainNv     = (mainSlots === wantSlots) ? newNv : snapNv(mainSlots);
+  const actualMain = NV[mainNv] ? NV[mainNv].slots : mainSlots;
+
+  g.nv        = mainNv;
+  // Calculate overflow early so we can set displayNv correctly
+  const overflowSlots = wantSlots - actualMain;
+  // displayNv only for bar-crossing: shows full intended value next to (tied) continuation
+  // For notes clamped within a bar, dropdown shows actual playing value (g.nv)
+  g.displayNv = (overflowSlots > 0 && barIdx + 1 < NUM_BARS) ? newNv : null;
+
+  const oldLen = len;
+  if (actualMain > oldLen) {
+    fillSlots(start, actualMain, gid);
+    pruneAndFixGroups();
+  } else if (actualMain < oldLen) {
+    fillSlots(start, actualMain, gid);
+    fillWithRests(start + actualMain, oldLen - actualMain);
+    pruneAndFixGroups();
+  }
+
+  // Bar-crossing continuation
+  if (overflowSlots > 0 && barIdx + 1 < NUM_BARS) {
+    const contStart = barEnd;
+    const contNv    = snapNv(overflowSlots);
+    const contSlots = NV[contNv].slots;
+    const contGid   = makeGroup(contNv, g.notes, true);
+    g.contGid       = contGid;
+    fillSlots(contStart, contSlots, contGid);
+    pruneAndFixGroups();
+  }
+
+  render();
+  if (window.editor) editor.validateState();
+}
+
+// Remove all cells belonging to a triplet group and restore rests
+function removeTripletGroup(tgId, anySlot) {
+  // Find all slots with this triplet group
+  let start = TOTAL_SLOTS, end = -1;
+  for (let s = 0; s < TOTAL_SLOTS; s++) {
+    const gid = grid[s];
+    const g   = groups.get(gid);
+    if (g && g.tripletGroup === tgId) {
+      start = Math.min(start, s);
+      end   = Math.max(end, s);
+    }
+  }
+  if (end === -1) return;
+  // Delete all triplet groups
+  const toDelete = new Set();
+  for (let s = start; s <= end; s++) {
+    const g = groups.get(grid[s]);
+    if (g && g.tripletGroup === tgId) toDelete.add(grid[s]);
+  }
+  toDelete.forEach(id => groups.delete(id));
+  // Fill with rests
+  fillWithRests(start, end - start + 1);
+}
+
+// Remove a continuation group that was auto-created for gid
+function removeContinuationFor(gid) {
+  const g = groups.get(gid);
+  if (!g || !g.contGid) return;
+  const contGid = g.contGid;
+  // Find the slots occupied by the continuation
+  let start = -1, len = 0;
+  for (let s = 0; s < TOTAL_SLOTS; s++) {
+    if (grid[s] === contGid) {
+      if (start === -1) start = s;
+      len++;
+    }
+  }
+  // Delete the group first so fillWithRests doesn't conflict
+  g.contGid = null;
+  groups.delete(contGid);
+  // Now fill those slots with fresh rests
+  if (start !== -1 && len > 0) {
+    fillWithRests(start, len);
+  }
+}
+
+// After overwriting slots, some groups may have lost part of their range.
+// We need to update their nv to reflect their new actual length.
+function pruneAndFixGroups() {
+  const actualLen = new Map();
+  for (let s = 0; s < TOTAL_SLOTS; s++) {
+    const gid = grid[s];
+    actualLen.set(gid, (actualLen.get(gid) || 0) + 1);
+  }
+  for (const id of groups.keys()) {
+    if (!actualLen.has(id)) {
+      groups.delete(id);
+    } else {
+      const al = actualLen.get(id);
+      const g  = groups.get(id);
+      // Don't touch triplet groups — their slot count is intentional
+      if (!g.tripletGroup && NV[g.nv] && NV[g.nv].slots !== al) {
+        g.nv = snapNv(al);
+      }
+    }
+  }
+}
+
+// ═════════════════���═════════════════════════
+//  BUILD RUNS FOR RENDERING
+//
+//  Scans grid and produces ordered list of visual runs.
+//  A group that starts in bar N but continues in bar N+1
+//  is split at the bar boundary: the bar-2 portion gets isCont=true.
+// ═══════════════════════════════════════════
+
+// buildRuns() — convenience wrapper using current editor globals
+// ═══════════════════════════════════════════════════════════
+// §3  GRID QUERIES  — runs, timelines, slot lookups
+// ═══════════════════════════════════════════════════════════
+
+function buildRuns() {
+  return buildRunsFrom(grid, groups);
+}
+
+// ═══════════════════════════════════════════
+//  DIVIDER CLASS
+// ═══════════════════════════════════════════
+
+// ═══════════════════════════════════════════════════════════
+// §4  RENDER  — editor grid HTML generation
+// ═══════════════════════════════════════════════════════════
+
+function divClass(s) {
+  if (s === 0)                        return '';
+  if (s % SLOTS_PER_BAR  === 0)       return 'div-bar';
+  if (s % SLOTS_PER_BEAT === 0)       return 'div-beat';
+  return 'div-sub';
+}
+
+// ═══════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════
+
+// render() — always renders the editor grid using current editor state
+function render() {
+  renderInto(document.getElementById('tabGrid'), grid, groups, false);
+}
+
+// renderInto(el, gridData, groupsData, isPractice)
+// Pure function of the data passed in — no global reads, no side effects.
+// This makes it reusable for editor, practice, and future lesson contexts.
+function renderInto(gridEl, g_grid, g_groups, isPractice) {
+  gridEl.innerHTML = '';
+  const runs = buildRunsFrom(g_grid, g_groups);
+
+  // Total width of one bar in px
+  const barPx = SLOTS_PER_BAR * SLOT_PX;
+
+  // ── Bar label row (one cell per bar) ──
+  const barRow = document.createElement('div');
+  barRow.className = 'bar-row';
+  // Spacer to align with string cells (matches .string-name width)
+  const barSpacer = document.createElement('div');
+  barSpacer.style.cssText = 'width:36px;flex-shrink:0;';
+  barRow.appendChild(barSpacer);
+  for (let b = 0; b < NUM_BARS; b++) {
+    const el = document.createElement('div');
+    el.className = 'bar-label-cell';
+    el.style.width = barPx + 'px';
+    el.textContent = `Bar ${b + 1}`;
+    barRow.appendChild(el);
+  }
+  const capB = document.createElement('div'); capB.style.width = '2px';
+  barRow.appendChild(capB);
+  gridEl.appendChild(barRow);
+
+  // ── Beat label row (beats 1-4 per bar, always quarter-note spaced) ──
+  const beatRow = document.createElement('div');
+  beatRow.className = 'beat-row';
+  // Spacer to align with string cells
+  const beatSpacer = document.createElement('div');
+  beatSpacer.style.cssText = 'width:36px;flex-shrink:0;';
+  beatRow.appendChild(beatSpacer);
+  for (let b = 0; b < NUM_BARS; b++) {
+    for (let beat = 0; beat < BEATS_PER_BAR; beat++) {
+      const el = document.createElement('div');
+      el.className = 'beat-label-cell';
+      el.style.width = SLOTS_PER_BEAT * SLOT_PX + 'px';
+      el.textContent = beat + 1;
+      beatRow.appendChild(el);
+    }
+  }
+  const capBt = document.createElement('div'); capBt.style.width = '2px';
+  beatRow.appendChild(capBt);
+  gridEl.appendChild(beatRow);
+
+  // ── String rows ──
+  STRINGS.forEach((strName, si) => {
+    const row = document.createElement('div');
+    row.className = 'string-row';
+
+    const nameLbl = document.createElement('div');
+    nameLbl.className = 'string-name';
+    nameLbl.textContent = strName + ' |';
+    row.appendChild(nameLbl);
+
+    const cellsWrap = document.createElement('div');
+    cellsWrap.className = 'string-cells';
+
+    runs.forEach(r => {
+      const g    = g_groups.get(r.gid);
+      const cell = document.createElement('div');
+      cell.className = 'cell';
+      const dc = divClass(r.start);
+      if (dc) cell.classList.add(dc);
+      if (g.isRhythmNote && (!g.notes || g.notes.length === 0)) {
+        cell.classList.add('cell-rhythm-note');
+      }
+      cell.style.width = (r.len * SLOT_PX) + 'px';
+
+      const bg = document.createElement('div');
+      bg.className = 'cell-bg';
+      cell.appendChild(bg);
+
+      const content = document.createElement('div');
+      content.className = 'cell-content';
+
+      const fret = fretAt(g, si);
+      if (fret !== null && fret !== undefined) {
+        const badge = document.createElement('span');
+        badge.className = 'fret-badge ' + (r.isCont ? 'cont' : 'normal');
+        badge.textContent = r.isCont ? `(${fret})` : String(fret);
+        content.appendChild(badge);
+      }
+      cell.appendChild(content);
+
+      cell.dataset.slot = r.start;
+      cell.dataset.str  = si;
+      if (!r.isCont && !isPractice) {
+        cell.addEventListener('click', e => openPopup(e, r.start, si));
+        cell.addEventListener('contextmenu', e => {
+          e.preventDefault();
+          const fret = fretAt(g_groups.get(r.gid), si);
+          if (fret !== null && fret !== undefined) {
+            const OPEN_MIDI_ABS = [64, 59, 55, 50, 45, 40];
+            const midi = OPEN_MIDI_ABS[si] + fret;
+            if (Audio.ctx && Audio.samplesReady) {
+              // Resume context if suspended, then play
+              (Audio.ctx.state === 'suspended' ? Audio.ctx.resume() : Promise.resolve())
+                .then(() => playSampleNote(midi, 1.5, Audio.ctx.currentTime + 0.01));
+            } else {
+              // First ever interaction — init everything then play
+              initTone().then(() => playSampleNote(midi, 1.5, Audio.ctx.currentTime + 0.01));
+            }
+          }
+        });
+      } else {
+        cell.classList.add('no-click');
+      }
+
+      cellsWrap.appendChild(cell);
+    });
+
+    const cap = document.createElement('div');
+    cap.className = 'bar-cap';
+    cellsWrap.appendChild(cap);
+
+    row.appendChild(cellsWrap);
+    gridEl.appendChild(row);
+  });
+
+  // ── Note name row ──
+  // For each run, show note names for all strings that have a fret
+  // We render one row per string would be messy — instead render
+  // one combined row with stacked note names per position
+  const nameRow = document.createElement('div');
+  nameRow.className = 'note-name-row';
+  // Spacer to align with string cells (matches .string-name width of 36px)
+  const nameSpacer = document.createElement('div');
+  nameSpacer.style.cssText = 'width:36px;flex-shrink:0;';
+  nameRow.appendChild(nameSpacer);
+  runs.forEach(r => {
+    const g  = g_groups.get(r.gid);
+    const px = r.len * SLOT_PX;
+    const cell = document.createElement('div');
+    cell.className = 'note-name-cell';
+    cell.style.width = px + 'px';
+    // Collect unique note names for this position (only non-cont, non-null frets)
+    if (!r.isCont) {
+      const names = [];
+      STRINGS.forEach((str, si) => {
+        const fret = fretAt(g, si);
+        if (fret !== null && fret !== undefined) {
+          const n = noteName(si, fret);
+          if (n && !names.includes(n)) names.push(n);
+        }
+      });
+      if (names.length > 0) cell.textContent = names.join(' ');
+    }
+    nameRow.appendChild(cell);
+  });
+  const capN = document.createElement('div'); capN.style.width = '2px';
+  nameRow.appendChild(capN);
+  gridEl.appendChild(nameRow);
+
+  // ── Controls row (base selector + dot/triplet buttons) ──
+  const ctrlRow = document.createElement('div');
+  ctrlRow.className = 'ctrl-row';
+
+  runs.forEach(r => {
+    const g    = g_groups.get(r.gid);
+    const px   = r.len * SLOT_PX;
+    const ctrl = document.createElement('div');
+    ctrl.className = 'cell-ctrl';
+    ctrl.style.width = px + 'px';
+
+    if (r.isCont) {
+      const sel = document.createElement('select');
+      sel.className = 'note-sel is-cont';
+      sel.disabled = true;
+      const opt = document.createElement('option');
+      opt.textContent = '(tied)';
+      sel.appendChild(opt);
+      ctrl.appendChild(sel);
+    } else {
+      const activeNv  = g.displayNv || g.nv;
+      const { base, dot, triplet } = decodeNvKey(activeNv);
+      const label = BASE_LABELS[base]
+        + (dot ? ' ·' : '')
+        + (triplet ? ' ×3' : '');
+      const trigger = document.createElement('div');
+      trigger.className = 'nv-trigger';
+      trigger.style.width = Math.max(px - 4, 24) + 'px';
+      trigger.textContent = label;
+      trigger.addEventListener('click', e => {
+        e.stopPropagation();
+        openNvPanel(trigger, r.start, activeNv);
+      });
+      ctrl.appendChild(trigger);
+    }
+
+    ctrlRow.appendChild(ctrl);
+  });
+  gridEl.appendChild(ctrlRow);
+}
+
+// ═══════════════════════════════════════════
+//  FRET POPUP
+// ═══════════════════════════════════════════
+
+// ── Editor UI state ──
+const EditorUI = {
+  activeSlot:   null,
+  activeStr:    null,
+  nvActiveSlot: null,
+  nvDot:        false,
+  nvTriplet:    false,
+};
+
+// Ordered list of non-cont run start slots for keyboard navigation
+function getNavSlots() {
+  return buildRuns().filter(r => !r.isCont).map(r => r.start);
+}
+
+// ═══════════════════════════════════════════════════════════
+// §5  EDITOR UI  — popup, fret entry, note value panel
+// ═══════════════════════════════════════════════════════════
+
+function openPopup(e, slot, si) {
+  EditorUI.activeSlot = slot;
+  EditorUI.activeStr  = si;
+  const popup = document.getElementById('fretPopup');
+  const field = document.getElementById('fretField');
+  const rect  = e ? e.currentTarget.getBoundingClientRect()
+                  : document.querySelector(`.cell[data-slot="${slot}"]`)?.getBoundingClientRect()
+                    || { left: 200, top: 200, width: 60 };
+  popup.style.display = 'flex';
+  popup.style.left = (rect.left + window.scrollX + rect.width / 2 - 40) + 'px';
+  popup.style.top  = (rect.top  + window.scrollY - 66) + 'px';
+  const fret = fretAt(groups.get(grid[slot]), si);
+  field.value = fret !== null && fret !== undefined ? fret : '';
+  field.focus();
+  field.select();
+}
+
+function moveToNext() {
+  const slots = getNavSlots();
+  const idx   = slots.indexOf(EditorUI.activeSlot);
+  if (idx !== -1 && idx < slots.length - 1) {
+    commitFret(true);
+    const nextSlot = slots[idx + 1];
+    // Find the cell element
+    const nextCell = document.querySelector(`.cell[data-slot="${nextSlot}"][data-str="${EditorUI.activeStr}"]`);
+    if (nextCell) {
+      EditorUI.activeSlot = nextSlot;
+      EditorUI.activeStr  = EditorUI.activeStr;
+      const popup = document.getElementById('fretPopup');
+      const field = document.getElementById('fretField');
+      const rect  = nextCell.getBoundingClientRect();
+      popup.style.left = (rect.left + window.scrollX + rect.width / 2 - 40) + 'px';
+      popup.style.top  = (rect.top  + window.scrollY - 66) + 'px';
+      const fret = fretAt(groups.get(grid[nextSlot]), EditorUI.activeStr);
+      field.value = fret !== null && fret !== undefined ? fret : '';
+      field.focus();
+      field.select();
+    }
+  } else {
+    commitFret();
+  }
+}
+
+
+document.getElementById('fretField').addEventListener('keydown', e => {
+  if (e.key === 'ArrowRight' || e.key === '+') { moveToNext(); e.preventDefault(); }
+  else if (e.key === 'Enter' || e.key === 'Tab') { commitFret(); e.preventDefault(); }
+  else if (e.key === 'Escape') closePopup();
+});
+
+document.addEventListener('mousedown', e => {
+  const popup = document.getElementById('fretPopup');
+  if (popup.style.display === 'flex' && !popup.contains(e.target)) commitFret();
+});
+
+function commitFret(silent = false) {
+  if (EditorUI.activeSlot === null) return;
+  const val = document.getElementById('fretField').value.trim();
+  const g   = groups.get(grid[EditorUI.activeSlot]);
+  const si  = EditorUI.activeStr;
+  if (val === '') {
+    // Remove note for this string
+    g.notes = g.notes.filter(n => n.string !== si);
+  } else {
+    const n = parseInt(val);
+    if (!isNaN(n) && n >= 0 && n <= 24) {
+      // Convert fret to relative storage
+      const { interval, octave } = fretToNote(si, n);
+      // Remove existing note for this string, then add new one
+      g.notes = g.notes.filter(n => n.string !== si);
+      g.notes.push({ string: si, interval, octave });
+    }
+  }
+  // Sync notes to continuation group if one exists
+  if (g.contGid && groups.has(g.contGid)) {
+    groups.get(g.contGid).notes = g.notes.map(n => ({...n}));
+  }
+  if (!silent) closePopup();
+  render();
+  if (window.editor) editor.validateState();
+}
+
+function closePopup() {
+  document.getElementById('fretPopup').style.display = 'none';
+  EditorUI.activeSlot = null; EditorUI.activeStr = null;
+}
+
+// ═══════════════════════════════════════════
+//  CLEAR + GENERATE
+// ═══════════════════════════════════════════
+
+function clearAll() {
+  initGrid();
+  render();
+  if (window.editor) editor.validateState();
+  document.getElementById('tabOut').style.display = 'none';
+}
+
+function generateTab() {
+  const runs  = buildRuns();
+  const lines = STRINGS.map(s => s + '||');
+  const CPS   = 4; // chars per beat
+
+  runs.forEach(r => {
+    const g = groups.get(r.gid);
+    const w = Math.max(1, Math.round(r.len / SLOTS_PER_BEAT * CPS));
+    STRINGS.forEach((s, si) => {
+      const fret = fretAt(g, si);
+      let txt;
+      if (fret !== null && fret !== undefined) {
+        const fs = (r.isCont || g.tied) ? `(${fret})` : String(fret);
+        txt = fs + '-'.repeat(Math.max(0, w - fs.length));
+      } else {
+        txt = '-'.repeat(w);
+      }
+      lines[si] += txt;
+    });
+  });
+
+  lines.forEach((l, i) => lines[i] = l + '||');
+  document.getElementById('tabText').textContent = lines.join('\n');
+  document.getElementById('tabOut').style.display = 'block';
+}
+
+// ═══════════════════════════════════════════
+//  NOTE VALUE PANEL
+// ═══════════════════════════════════════════
+
+
+function openNvPanel(trigger, slot, currentNv) {
+  EditorUI.nvActiveSlot = slot;
+  const { base, dot, triplet } = decodeNvKey(currentNv);
+  EditorUI.nvDot     = dot;
+  EditorUI.nvTriplet = triplet;
+
+  const panel   = document.getElementById('nvPanel');
+  const dotBtn  = document.getElementById('EditorUI.nvDot');
+  const tripBtn = document.getElementById('nvTrip');
+  const optWrap = document.getElementById('nvOptions');
+
+  dotBtn.classList.toggle('on', EditorUI.nvDot);
+  tripBtn.classList.toggle('on', EditorUI.nvTriplet);
+
+  // Build base note options
+  optWrap.innerHTML = '';
+  BASE_ORDER.forEach(k => {
+    const div = document.createElement('div');
+    div.className = 'nv-option' + (k === base ? ' selected' : '');
+    div.textContent = BASE_LABELS[k];
+    div.addEventListener('click', e => {
+      e.stopPropagation();
+      const nv = makeNvKey(k, EditorUI.nvDot, EditorUI.nvTriplet);
+      changeNoteValue(EditorUI.nvActiveSlot, nv);
+      closeNvPanel();
+    });
+    optWrap.appendChild(div);
+  });
+
+  // Position below trigger
+  const rect = trigger.getBoundingClientRect();
+  panel.style.left = rect.left + window.scrollX + 'px';
+  panel.style.top  = rect.bottom + window.scrollY + 4 + 'px';
+  panel.classList.add('open');
+
+  // Mod button handlers (toggle state, rebuild options)
+  dotBtn.onclick = e => {
+    e.stopPropagation();
+    EditorUI.nvDot = !EditorUI.nvDot;
+    dotBtn.classList.toggle('on', EditorUI.nvDot);
+  };
+  tripBtn.onclick = e => {
+    e.stopPropagation();
+    EditorUI.nvTriplet = !EditorUI.nvTriplet;
+    tripBtn.classList.toggle('on', EditorUI.nvTriplet);
+  };
+}
+
+function closeNvPanel() {
+  document.getElementById('nvPanel').classList.remove('open');
+  EditorUI.nvActiveSlot = null;
+}
+
+document.addEventListener('click', e => {
+  const panel = document.getElementById('nvPanel');
+  if (panel.classList.contains('open') && !panel.contains(e.target)) {
+    closeNvPanel();
+  }
+});
+
+// ═══════════════════════════════════════════
+//  PLAYER ENGINE
+// ═══════════════════════════════════════════
+
+// ── State ──
+let playerState = {
+  playing:        false,
+  metro:          false,
+  countin:        false,
+  loop:           false,
+  phase:          'idle',   // idle | countin | play | silent | check
+  cycleRep:       0,
+  loopCount:      0,
+  currentBpm:     80,
+  startBpm:       80,
+  resetBpmOnStop: true,     // reset BPM display to start BPM when stopped
+};
+
+// ── Tap tempo ──
+// ── Tap tempo state ──
+const TapTempo = { times: [] };
+// ═══════════════════════════════════════════════════════════
+// §6  PLAYER CONTROLS  — BPM, metro, loop toggles
+// ═══════════════════════════════════════════════════════════
+
+function tapTempo() {
+  const now = Date.now();
+  TapTempo.times = TapTempo.times.filter(t => now - t < 3000);
+  TapTempo.times.push(now);
+  if (TapTempo.times.length >= 2) {
+    const avg = (TapTempo.times[TapTempo.times.length-1] - TapTempo.times[0]) / (TapTempo.times.length - 1);
+    const bpm = Math.round(60000 / avg);
+    document.getElementById('bpmInput').value = Math.min(300, Math.max(20, bpm));
+  }
+}
+
+// ── Toggle buttons ──
+function toggleMetro() {
+  playerState.metro = !playerState.metro;
+  const btn = document.getElementById('metroBtn');
+  btn.textContent = playerState.metro ? 'on' : 'off';
+  btn.classList.toggle('active', playerState.metro);
+}
+
+function toggleResetBpm() {
+  playerState.resetBpmOnStop = !playerState.resetBpmOnStop;
+  const btn = document.getElementById('resetBpmBtn');
+  btn.classList.toggle('active', playerState.resetBpmOnStop);
+  btn.title = playerState.resetBpmOnStop ? 'BPM resets to start on stop (click to disable)' : 'BPM stays at current on stop (click to enable)';
+}
+
+function toggleLoop() {
+  playerState.loop = !playerState.loop;
+  const btn = document.getElementById('loopBtn');
+  btn.textContent = playerState.loop ? 'on' : 'off';
+  btn.classList.toggle('active', playerState.loop);
+}
+
+// ── Sample-based guitar engine ──
+const GUITAR_TYPES = {
+  'acoustic_nylon':  'acoustic_guitar_nylon-mp3',
+  'acoustic_steel':  'acoustic_guitar_steel-mp3',
+  'electric_clean':  'electric_guitar_clean-mp3',
+  'electric_jazz':   'electric_guitar_jazz-mp3',
+  'electric_muted':  'electric_guitar_muted-mp3',
+  'overdriven':      'overdriven_guitar-mp3',
+  'distortion':      'distortion_guitar-mp3',
+};
+
+const SAMPLE_BASE = 'https://gleitz.github.io/midi-js-soundfonts/MusyngKite/';
+
+// Samples are recorded every 3 semitones (roughly).
+// We'll load every 3rd note and pitch-shift the rest.
+const SAMPLE_NOTES = ['A', 'C', 'Eb', 'Gb'];  // every 3 semitones, per octave
+const SAMPLE_OCTAVES = [1, 2, 3, 4, 5, 6];
+
+// Note name → MIDI number
+// ═══════════════════════════════════════════════════════════
+// §7  AUDIO ENGINE  — samples, synth, scheduling
+// ═══════════════════════════════════════════════════════════
+
+function noteNameToMidi(name) {
+  const noteMap = { C:0, 'C#':1, Db:1, D:2, 'D#':3, Eb:3, E:4, F:5,
+                    'F#':6, Gb:6, G:7, 'G#':8, Ab:8, A:9, 'A#':10, Bb:10, B:11 };
+  const m = name.match(/^([A-G]b?)(\d)$/);
+  if (!m) return null;
+  return noteMap[m[1]] + (parseInt(m[2]) + 1) * 12;
+}
+
+// MIDI → nearest sample key and playback rate
+function midiToSampleKey(midi, loadedKeys) {
+  let best = null, bestDist = Infinity;
+  for (const key of loadedKeys) {
+    const km = noteNameToMidi(key);
+    if (km === null) continue;
+    const d = Math.abs(km - midi);
+    if (d < bestDist) { bestDist = d; best = { key, km }; }
+  }
+  if (!best) return null;
+  return { key: best.key, rate: Math.pow(2, (midi - best.km) / 12) };
+}
+
+// ── Audio engine state ──
+const Audio = {
+  ctx:             null,
+  sampleBuffers:   {},      // key: note string e.g. "A2", value: AudioBuffer
+  loadedGuitarType:null,
+  samplesLoading:  false,
+  samplesReady:    false,
+  toneReady:       false,
+  metroHigh:       null,    // Tone.js synth nodes
+  metroLow:        null,
+  metroDrum:       null,
+};
+
+// Tone.js instruments for metronome (still used)
+// (Audio.toneReady and metro nodes moved into Audio object below)
+
+async function initTone() {
+  if (Audio.toneReady) return;
+  await Tone.start();
+
+  // Metro high
+  Audio.metroHigh = new Tone.Synth({
+    oscillator: { type: 'sine' },
+    envelope: { attack: 0.001, decay: 0.06, sustain: 0, release: 0.05 },
+    volume: -10,
+  }).toDestination();
+
+  // Metro low
+  Audio.metroLow = new Tone.Synth({
+    oscillator: { type: 'sine' },
+    envelope: { attack: 0.001, decay: 0.1, sustain: 0, release: 0.06 },
+    volume: -8,
+  }).toDestination();
+
+  // Drum
+  Audio.metroDrum = new Tone.MembraneSynth({
+    pitchDecay: 0.05,
+    octaves: 4,
+    envelope: { attack: 0.001, decay: 0.15, sustain: 0, release: 0.1 },
+    volume: -6,
+  }).toDestination();
+
+  Audio.toneReady = true;
+
+  // Use Tone's own AudioContext so sample times and transport times share the same clock
+  Audio.ctx = Tone.getContext().rawContext;
+  await loadGuitarSamples();
+}
+
+function getSelectedGuitarType() {
+  return document.getElementById('guitarTypeSel')?.value || 'acoustic_nylon';
+}
+
+async function loadGuitarSamples() {
+  const type = getSelectedGuitarType();
+  if (Audio.loadedGuitarType === type && Audio.samplesReady) return;
+
+  Audio.samplesReady = false;
+  Audio.samplesLoading = true;
+  Audio.sampleBuffers = {};
+  Audio.loadedGuitarType = type;
+
+  setStatus('Loading samples…');
+
+  const folder = GUITAR_TYPES[type];
+  const base   = SAMPLE_BASE + folder + '/';
+
+  // Build list of notes to load — every 3 semitones across guitar range
+  // Guitar range: E2 (MIDI 40) to ~C6 (MIDI 84)
+  const notesToLoad = [];
+  for (const octave of SAMPLE_OCTAVES) {
+    for (const note of SAMPLE_NOTES) {
+      const name = note + octave;
+      const midi = noteNameToMidi(name);
+      if (midi >= 36 && midi <= 88) notesToLoad.push(name);
+    }
+  }
+  // Also include a few extras for coverage
+  ['E2','B2','E3','B3','E4','B4'].forEach(n => {
+    if (!notesToLoad.includes(n)) notesToLoad.push(n);
+  });
+
+  // Load in parallel (with graceful failures)
+  const results = await Promise.allSettled(notesToLoad.map(async name => {
+    const url = base + name + '.mp3';
+    const resp = await fetch(url);
+    if (!resp.ok) throw new Error('404');
+    const arr  = await resp.arrayBuffer();
+    const buf  = await Audio.ctx.decodeAudioData(arr);
+    Audio.sampleBuffers[name] = buf;
+  }));
+
+  const loaded = Object.keys(Audio.sampleBuffers).length;
+  Audio.samplesReady = loaded > 0;
+  Audio.samplesLoading = false;
+
+  if (Audio.samplesReady) {
+    setStatus(`Ready (${loaded} samples)`);
+    setTimeout(() => { if (!playerState.playing) setStatus('Ready'); }, 2000);
+  } else {
+    setStatus('Sample load failed — using synth');
+  }
+}
+
+// Play a single note via samples (called at precise Web Audio time)
+function playSampleNote(midi, durationSec, startTime) {
+  if (!Audio.samplesReady || !Audio.ctx) return false;
+  const loadedKeys = Object.keys(Audio.sampleBuffers);
+  const sr = midiToSampleKey(midi, loadedKeys);
+  if (!sr || !Audio.sampleBuffers[sr.key]) return false;
+
+  const src  = Audio.ctx.createBufferSource();
+  src.buffer = Audio.sampleBuffers[sr.key];
+  src.playbackRate.value = sr.rate;
+
+  // Let the sample ring naturally — guitar notes sustain well past
+  // their notated duration. Only fade out near the end of the full
+  // natural decay (2.5s is a comfortable max for most notes).
+  const naturalDur = Math.max(durationSec * 2.0, 1.5);
+
+  const gain = Audio.ctx.createGain();
+  gain.gain.setValueAtTime(0.85, startTime);
+  // Gentle fade starting at the notated duration, decaying over ~0.8s
+  gain.gain.setTargetAtTime(0, startTime + durationSec, 0.5);
+
+  src.connect(gain);
+  gain.connect(Audio.ctx.destination);
+  src.start(startTime);
+  src.stop(startTime + naturalDur + 1.0);
+  return true;
+}
+
+// Called when user changes guitar type — reload samples
+async function onGuitarTypeChange() {
+  if (!Audio.ctx) return; // not initialised yet, will load on first play
+  Audio.samplesReady = false;
+  Audio.loadedGuitarType = null;
+  await loadGuitarSamples();
+}
+
+// ── Frequency from string + fret (kept for reference, not used for playback) ──
+function fretToFreq(stringIdx, fret) {
+  // MIDI note: open string midi + fret
+  const OPEN_MIDI_ABS = [64, 59, 55, 50, 45, 40]; // E4 B3 G3 D3 A2 E2
+  const midi = OPEN_MIDI_ABS[stringIdx] + fret;
+  return 440 * Math.pow(2, (midi - 69) / 12);
+}
+
+// buildTimeline(g_grid, g_groups, loopFromSlot, loopToSlot) — pure function of the data passed in.
+// Caller decides which grid/groups to use (editor or practice).
+function buildTimeline(g_grid, g_groups, loopFromSlot = 0, loopToSlot = null) {
+  if (!g_grid || !g_groups) return [];
+  if (loopToSlot === null) loopToSlot = g_grid.length;
+
+  const runs = buildRunsFrom(g_grid, g_groups);
+  const events = [];
+  const OPEN_MIDI_ABS = [64, 59, 55, 50, 45, 40];
+
+  runs.forEach(r => {
+    if (r.isCont) return;
+    if (r.start < loopFromSlot || r.start >= loopToSlot) return;
+    const g = g_groups.get(r.gid);
+    const midis = [];
+    STRINGS.forEach((s, si) => {
+      const fret = fretAt(g, si);
+      if (fret !== null && fret !== undefined) {
+        midis.push(OPEN_MIDI_ABS[si] + fret);
+      }
+    });
+    events.push({ slotStart: r.start - loopFromSlot, slots: r.len, midis });
+  });
+  return events;
+}
+
+function buildRunsFrom(g_grid, g_groups) {
+  const runs = [];
+  let s = 0;
+  while (s < g_grid.length) {
+    const gid = g_grid[s];
+    const g   = g_groups.get(gid);
+    let e = s;
+    while (e + 1 < g_grid.length && g_grid[e + 1] === gid) e++;
+    const len = e - s + 1;
+    runs.push({ gid, start: s, len, isCont: g ? (g.isCont || false) : false });
+    s = e + 1;
+  }
+  return runs;
+}
+
+// Override TOTAL_SLOTS for practice lick loop range
+function getPracticeLoopSlots() {
+  if (!document.getElementById('panelPractice').classList.contains('active')) return TOTAL_SLOTS;
+  const fromBar = parseInt(document.getElementById('loopBarFrom').value) || 1;
+  const toBar   = parseInt(document.getElementById('loopBarTo').value)   || NUM_BARS;
+  return Math.min(toBar * SLOTS_PER_BAR, TOTAL_SLOTS) - (fromBar - 1) * SLOTS_PER_BAR;
+}
+
+// ── Schedule one lick pass onto Tone.Transport ──
+// offsetSeconds = when to start this pass
+// Returns duration of one lick in seconds
+function scheduleLick(offsetSeconds, bpm, playNotes) {
+  const loopSlots  = getPracticeLoopSlots();
+  const secPerSlot = (60 / bpm) / SLOTS_PER_BEAT;
+  const totalSec   = loopSlots * secPerSlot;
+  if (playNotes) {
+    // Resolve which data to play — practice panel uses practiceGrid, otherwise editor grid
+    const isPractice = document.getElementById('panelPractice').classList.contains('active');
+    const tl_grid   = isPractice ? practiceGrid   : grid;
+    const tl_groups = isPractice ? practiceGroups : groups;
+
+    // Compute bar loop bounds for practice mode
+    let loopFromSlot = 0;
+    let loopToSlot   = tl_grid ? tl_grid.length : TOTAL_SLOTS;
+    if (isPractice) {
+      const fromBar = parseInt(document.getElementById('loopBarFrom').value) || 1;
+      const toBar   = parseInt(document.getElementById('loopBarTo').value)   || NUM_BARS;
+      loopFromSlot  = (fromBar - 1) * SLOTS_PER_BAR;
+      loopToSlot    = Math.min(toBar * SLOTS_PER_BAR, loopToSlot);
+    }
+
+    const events = buildTimeline(tl_grid, tl_groups, loopFromSlot, loopToSlot);
+    events.forEach(ev => {
+      if (ev.midis.length === 0) return;
+      const t = offsetSeconds + ev.slotStart * secPerSlot;
+      const durSec = ev.slots * secPerSlot * 0.9;
+      Tone.Transport.schedule(time => {
+        // Strum: low strings (high index) play first, high strings last
+        // like a natural downstrum. 0–18ms spread + tiny random humanisation.
+        ev.midis.forEach((midi, i) => {
+          const strumOffset = (ev.midis.length - 1 - i) * 0.003 + Math.random() * 0.002;
+          playSampleNote(midi, durSec, time + strumOffset);
+        });
+        Tone.getDraw().schedule(() => highlightSlot(ev.slotStart), time);
+      }, t);
+    });
+  }
+  return totalSec;
+}
+
+// ── Schedule metronome beats for a duration ──
+function scheduleMetro(offsetSeconds, durationSeconds, bpm) {
+  const style    = document.getElementById('metroStyle').value;
+  const beatSec  = 60 / bpm;
+  const beats    = Math.ceil(durationSeconds / beatSec);
+  for (let i = 0; i < beats; i++) {
+    const t        = offsetSeconds + i * beatSec;
+    const isAccent = i % BEATS_PER_BAR === 0;
+    Tone.Transport.schedule(time => {
+      playMetroBeat(time, isAccent, style);
+    }, t);
+  }
+}
+
+// Schedule playhead position updates at each beat during silent/count-in phases
+// Mirrors what scheduleLick does for note events, but just fires highlightSlot
+function schedulePlayheadBeats(offsetSeconds, durationSeconds, bpm) {
+  const loopSlots  = getPracticeLoopSlots();
+  const secPerSlot = (60 / bpm) / SLOTS_PER_BEAT;
+  const beatSlots  = SLOTS_PER_BEAT; // slots per beat
+  const beatSec    = 60 / bpm;
+  const beats      = Math.round(durationSeconds / beatSec);
+  for (let i = 0; i < beats; i++) {
+    const t        = offsetSeconds + i * beatSec;
+    const slotPos  = (i * beatSlots) % loopSlots;
+    Tone.Transport.schedule(time => {
+      Tone.getDraw().schedule(() => highlightSlot(slotPos), time);
+    }, t);
+  }
+}
+
+function playMetroBeat(time, isAccent, style) {
+  switch(style) {
+    case 'click':
+      Audio.metroHigh.triggerAttackRelease(isAccent ? 1200 : 900, '32n', time);
+      break;
+    case 'beep':
+      Audio.metroHigh.triggerAttackRelease(isAccent ? 880 : 660, '16n', time);
+      break;
+    case 'accent':
+      if (isAccent) Audio.metroLow.triggerAttackRelease(440, '16n', time);
+      else          Audio.metroHigh.triggerAttackRelease(880, '32n', time);
+      break;
+    case 'drum':
+      if (isAccent) Audio.metroDrum.triggerAttackRelease('C1', '8n', time);
+      else          Audio.metroHigh.triggerAttackRelease(1200, '32n', time);
+      break;
+  }
+}
+
+// ── Main play/stop ──
+async function togglePlay() {
+  if (playerState.playing) {
+    stopPlayer();
+    return;
+  }
+  await initTone();
+  startPlayer();
+}
+
+// ── Read all player config from DOM in one place ──
+// Called once at start — player logic never reads DOM after this.
+// ═══════════════════════════════════════════════════════════
+// §8  PLAYER  — start, stop, playhead, sequencer loop
+// ═══════════════════════════════════════════════════════════
+
+function readPlayerConfig() {
+  return {
+    bpm:            parseInt(document.getElementById('bpmInput').value)        || 80,
+    bpmInc:         parseInt(document.getElementById('bpmInc').value)          || 0,
+    bpmLoopsPerStep:Math.max(1, parseInt(document.getElementById('bpmLoopsPerStep').value) || 1),
+    seqPlay:        parseInt(document.getElementById('seqPlay').value)         || 1,
+    seqSilent:      parseInt(document.getElementById('seqSilent').value)       || 0,
+    seqCheck:       parseInt(document.getElementById('seqCheck').value)        || 0,
+    countinVal:     document.getElementById('countinSel').value,
+    doMetro:        playerState.metro,
+    doLoop:         playerState.loop,
+  };
+}
+
+// ── Centralised player UI updates ──
+function setPlayerUI(state) {
+  const btn = document.getElementById('playBtn');
+  if (state === 'playing') {
+    btn.textContent = '■';
+    btn.classList.add('active');
+  } else {
+    btn.textContent = '▶';
+    btn.classList.remove('active');
+  }
+}
+
+function stopPlayer() {
+  if (ChordProg.activeBeat !== -1) {
+    ChordProg.activeBeat = -1;
+    renderChordProg();
+    if (ChordProg.enabled) clearChordFretboard();
+  }
+  Tone.Transport.stop();
+  Tone.Transport.cancel();
+  Tone.Transport.seconds = 0;
+  playerState.playing = false;
+  playerState.phase   = 'idle';
+  playerState._starting = false;
+  Player.lickEvents = [];
+  if (playerState.resetBpmOnStop && playerState.startBpm) {
+    document.getElementById('bpmInput').value = playerState.startBpm;
+    playerState.currentBpm = playerState.startBpm;
+  }
+  setPlayerUI('stopped');
+  setStatus('Ready');
+  stopPlayhead();
+  clearHighlights();
+}
+
+// ── Player timing state ──
+const Player = {
+  starting:         false,   // guard against rapid double-starts
+  playheadRaf:      null,
+  lickEvents:  [],      // { time, bpm, lickSec } — built upfront, read by playhead
+  currentSlot:      0,       // updated by audio thread via getDraw, read by playhead RAF
+};
+
+function startPlayer() {
+  // Guard: prevent stacking if already playing or mid-start
+  if (Player.starting) return;
+  Player.starting = true;
+
+  Tone.Transport.cancel();
+  Tone.Transport.stop();
+
+  // Read all config from DOM once — player logic below never touches DOM for config
+  const cfg = readPlayerConfig();
+  const { bpm, bpmInc, bpmLoopsPerStep, seqPlay, seqSilent, seqCheck, countinVal, doMetro, doLoop } = cfg;
+
+  playerState.playing    = true;
+  playerState.loopCount  = 0;
+  playerState.currentBpm = bpm;
+  playerState.startBpm   = bpm;   // remember original BPM for reset on stop
+  Player.lickEvents = [];
+
+  setPlayerUI('playing');
+  Tone.Transport.bpm.value = bpm;
+
+  function scheduleFullCycle(startSec, currentBpm, loopIdx, isBpmStep = false) {
+    const loopSlots  = getPracticeLoopSlots();
+    const secPerSlot = (60 / currentBpm) / SLOTS_PER_BEAT;
+    const lickSec    = loopSlots * secPerSlot;
+    const beatSec    = 60 / currentBpm;
+    let cursor       = startSec;
+
+    // Count-in: when user has it enabled, or at BPM step boundaries
+    const needsCountin = (countinVal !== '0') || isBpmStep;
+    if (needsCountin) {
+      let countSec;
+      const effectiveCountin = (countinVal !== '0') ? countinVal : '1';
+      if (effectiveCountin === 'lick')   countSec = lickSec;
+      else if (effectiveCountin === '2') countSec = 2 * BEATS_PER_BAR * beatSec;
+      else                               countSec = BEATS_PER_BAR * beatSec;
+      const countSecPerSlot = countSec / loopSlots; // spread count-in across full bar width
+      Player.lickEvents.push({ time: cursor, bpm: currentBpm, lickSec: countSec, secPerSlot: countSecPerSlot, hasNotes: false });
+      scheduleMetro(cursor, countSec, currentBpm);
+      schedulePlayheadBeats(cursor, countSec, currentBpm);
+      Tone.Transport.schedule(time => {
+        Tone.getDraw().schedule(() => setStatus(`Loop ${loopIdx+1} — Count in…`), time);
+      }, cursor);
+      cursor += countSec;
+    }
+
+    // Play phase
+    for (let i = 0; i < seqPlay; i++) {
+      const t = cursor;
+      Player.lickEvents.push({ time: t, bpm: currentBpm, lickSec, secPerSlot, hasNotes: true });
+      Tone.Transport.schedule(time => {
+        Tone.getDraw().schedule(() => {
+          setStatus(`Loop ${loopIdx+1} — Listen (${i+1}/${seqPlay})`);
+        }, time);
+      }, t);
+      scheduleLick(cursor, currentBpm, true);
+      if (doMetro) scheduleMetro(cursor, lickSec, currentBpm);
+      cursor += lickSec;
+    }
+
+    // Silent / your turn phase — push event so status updates, but mark no notes
+    for (let i = 0; i < seqSilent; i++) {
+      const t = cursor;
+      Player.lickEvents.push({ time: t, bpm: currentBpm, lickSec, secPerSlot, hasNotes: false });
+      Tone.Transport.schedule(time => {
+        Tone.getDraw().schedule(() => {
+          setStatus(`Loop ${loopIdx+1} — Your turn (${i+1}/${seqSilent})`);
+          clearHighlights();
+        }, time);
+      }, t);
+      if (doMetro) scheduleMetro(cursor, lickSec, currentBpm);
+      schedulePlayheadBeats(cursor, lickSec, currentBpm);
+      cursor += lickSec;
+    }
+
+    // Check phase
+    for (let i = 0; i < seqCheck; i++) {
+      const t = cursor;
+      Player.lickEvents.push({ time: t, bpm: currentBpm, lickSec, secPerSlot, hasNotes: true });
+      Tone.Transport.schedule(time => {
+        Tone.getDraw().schedule(() => {
+          setStatus(`Loop ${loopIdx+1} — Check (${i+1}/${seqCheck})`);
+        }, time);
+      }, t);
+      scheduleLick(cursor, currentBpm, true);
+      if (doMetro) scheduleMetro(cursor, lickSec, currentBpm);
+      cursor += lickSec;
+    }
+
+    return cursor;
+  }
+
+  // Schedule cycles
+  let cursor = 0.1;
+  if (doLoop) {
+    // Schedule upfront to a fixed loop count horizon.
+    // Using loop count (not seconds) avoids over-scheduling at high BPM
+    // which can cause Tone to drop events.
+    const MAX_LOOPS = 200;
+    let t         = cursor;
+    let b         = bpm;
+    let idx       = 0;
+    let stepCount = 0;
+
+    while (idx < MAX_LOOPS) {
+      const cycleBpm  = b;
+      const cycleT    = t;
+      const cycleIdx  = idx;
+      // Count-in only when BPM is actually about to change (stepCount just reset
+      // AND BPM hasn't hit its ceiling yet)
+      const bpmWillChange = bpmInc > 0 && stepCount === 0 && idx > 0 && b < 300;
+      const isBpmStep = bpmWillChange;
+
+      Tone.Transport.schedule(time => {
+        Tone.Transport.bpm.setValueAtTime(cycleBpm, time);
+        Tone.getDraw().schedule(() => {
+          document.getElementById('bpmInput').value = cycleBpm;
+        }, time);
+      }, cycleT);
+
+      const endT = scheduleFullCycle(t, b, cycleIdx, isBpmStep);
+      t   = endT;
+      idx++;
+      stepCount++;
+      if (bpmInc > 0 && stepCount >= bpmLoopsPerStep) {
+        b = Math.min(300, b + bpmInc);
+        stepCount = 0;
+      }
+    }
+  } else {
+    const endT = scheduleFullCycle(cursor, bpm, 0);
+    Tone.Transport.schedule(time => { Tone.getDraw().schedule(() => stopPlayer(), time); }, endT);
+  }
+
+  Tone.Transport.start();
+  startPlayhead();
+  Player.starting = false;
+}
+
+function setStatus(txt) {
+  document.getElementById('pbStatus').textContent = txt;
+}
+
+// ── Playhead ──
+
+
+function startPlayhead() {
+  const isPractice = document.getElementById('panelPractice').classList.contains('active');
+  const gridId     = isPractice ? 'practiceTabGrid' : 'tabGrid';
+  const tabGrid    = document.getElementById(gridId);
+  let ph = document.getElementById('playhead');
+  if (!ph) {
+    ph = document.createElement('div');
+    ph.id = 'playhead';
+  }
+  tabGrid.style.position = 'relative';
+  tabGrid.appendChild(ph);
+  ph.style.height = tabGrid.offsetHeight + 'px';
+  ph.classList.add('visible');
+
+  Player.currentSlot = 0;
+
+  function frame() {
+    const stringName = tabGrid.querySelector('.string-name');
+    const offsetX    = stringName ? stringName.offsetWidth : 36;
+    ph.style.left    = (offsetX + Player.currentSlot * SLOT_PX) + 'px';
+    Player.playheadRaf = requestAnimationFrame(frame);
+  }
+  Player.playheadRaf = requestAnimationFrame(frame);
+}
+
+function stopPlayhead() {
+  if (Player.playheadRaf) cancelAnimationFrame(Player.playheadRaf);
+  const ph = document.getElementById('playhead');
+  if (ph) ph.classList.remove('visible');
+}
+
+// ── Cell highlighting ──
+
+function highlightSlot(slotStart) {
+  Player.currentSlot = slotStart;
+  if (ChordProg.enabled) {
+    const totalBeats = NUM_BARS * BEATS_PER_BAR;
+    const newBeat = Math.floor(slotStart / SLOTS_PER_BEAT) % totalBeats;
+    if (newBeat !== ChordProg.activeBeat) {
+      ChordProg.activeBeat = newBeat;
+      renderChordProg();
+      applyChordToFretboard(newBeat);
+    }
+  }
+  clearHighlights();
+  const isPractice = document.getElementById('panelPractice').classList.contains('active');
+  const fromBar    = isPractice ? (parseInt(document.getElementById('loopBarFrom').value) || 1) : 1;
+  const absSlot    = slotStart + (fromBar - 1) * SLOTS_PER_BAR;
+  const gridId     = isPractice ? 'practiceTabGrid' : 'tabGrid';
+  document.querySelectorAll(`#${gridId} .cell[data-slot="${absSlot}"]`).forEach(c => {
+    c.classList.add('playing');
+    setTimeout(() => c.classList.remove('playing'), 300);
+  });
+}
+function clearHighlights() {
+  document.querySelectorAll('.cell.playing').forEach(c => c.classList.remove('playing'));
+}
+
+
+// ═══════════════════════════════════════════
+//  LIBRARY & SAVE
+// ═══════════════════════════════════════════
+
+const TECH_TAGS  = ['Bend','Slide','Hammer-on','Pull-off','Vibrato','Tapping','Sweep','Palm mute','Tremolo','Harmonics'];
+const STYLE_TAGS = ['Blues','Rock','Jazz','Country','Metal','Funk','Classical','Latin','Pop','R&B'];
+const LS_KEY     = 'licklab_library';
+
+// ── Library / Save state ──
+const LibState = {
+  currentLickId:   null,        // id of loaded lick (null = unsaved)
+  activeTechTags:  new Set(),
+  activeStyleTags: new Set(),
+};
+
+// ── Serialise / deserialise grid ──
+// ═══════════════════════════════════════════════════════════
+// §9  LIBRARY  — save, load, serialise, delete
+// ═══════════════════════════════════════════════════════════
+
+function serialiseState() {
+  return {
+    version: 2,   // v2 = relative interval storage
+    grid:   Array.from(grid),
+    groups: Object.fromEntries(
+      [...groups.entries()].map(([k,v]) => [k, {
+        ...v,
+        notes: v.notes ? v.notes.map(n => ({...n})) : [],
+      }])
+    ),
+    nextId,
+    settings: {
+      bars:    NUM_BARS,
+      timeSig: document.getElementById('setupTimeSig')?.value || '4/4',
+      root:    CURRENT_KEY,
+      scale:   CURRENT_SCALE,
+      tuning:  document.getElementById('setupTuning')?.value  || 'standard',
+    },
+    playerPrefs: {
+      bpm:            document.getElementById('bpmInput')?.value        || 80,
+      bpmInc:         document.getElementById('bpmInc')?.value          || 0,
+      bpmLoopsPerStep:document.getElementById('bpmLoopsPerStep')?.value || 1,
+      seqPlay:        document.getElementById('seqPlay')?.value         || 2,
+      seqSilent:      document.getElementById('seqSilent')?.value       || 2,
+      seqCheck:       document.getElementById('seqCheck')?.value        || 1,
+    },
+  };
+}
+
+function deserialiseState(data) {
+  // Apply settings
+  const s = data.settings;
+  // Support legacy saves that used combined 'key' field
+  const root  = s.root  || (s.key ? (CHROMATIC_SHARP[KEY_TO_PC[s.key] ?? 0]) : 'C');
+  const scale = s.scale || (s.key ? (KEY_TO_SCALE[s.key] || 'major') : 'major');
+  document.getElementById('setupBars').value    = s.bars;
+  document.getElementById('setupTimeSig').value = s.timeSig;
+  document.getElementById('setupRoot').value    = root;
+  document.getElementById('setupScale').value   = scale;
+  document.getElementById('setupTuning').value  = s.tuning || 'standard';
+  applySettings(s.bars, s.timeSig, root, scale, s.tuning || 'standard');
+
+  // Restore grid
+  grid   = new Int16Array(data.grid);
+  groups = new Map(Object.entries(data.groups).map(([k,v]) => [
+    parseInt(k),
+    { ...v, notes: (v.notes || []).map(n => ({...n})) }
+  ]));
+  nextId = data.nextId;
+
+  // Restore player prefs
+  if (data.playerPrefs) {
+    const p = data.playerPrefs;
+    if (document.getElementById('bpmInput'))        document.getElementById('bpmInput').value        = p.bpm;
+    if (document.getElementById('bpmInc'))          document.getElementById('bpmInc').value          = p.bpmInc         ?? 0;
+    if (document.getElementById('bpmLoopsPerStep')) document.getElementById('bpmLoopsPerStep').value = p.bpmLoopsPerStep ?? 1;
+    if (document.getElementById('seqPlay'))         document.getElementById('seqPlay').value         = p.seqPlay;
+    if (document.getElementById('seqSilent'))       document.getElementById('seqSilent').value       = p.seqSilent;
+    if (document.getElementById('seqCheck'))        document.getElementById('seqCheck').value        = p.seqCheck;
+  }
+  // Validate state integrity after load
+  if (window.editor) editor.validateState();
+}
+
+// ── localStorage helpers ──
+function loadLibrary() {
+  try { return JSON.parse(localStorage.getItem(LS_KEY) || '[]'); }
+  catch(e) { return []; }
+}
+function saveLibrary(lib) {
+  localStorage.setItem(LS_KEY, JSON.stringify(lib));
+}
+
+// ── Save modal ──
+const SaveModal = {
+  originalTitle: '',  // track original title to detect user edits
+};
+
+function openSaveModal() {
+  // Pre-fill author from localStorage
+  const saved = localStorage.getItem('licklab_author') || '';
+  document.getElementById('saveAuthor').value = saved;
+
+  // Build tag chips
+  function buildTags(containerId, tags, activeSet) {
+    const wrap = document.getElementById(containerId);
+    wrap.innerHTML = '';
+    tags.forEach(t => {
+      const chip = document.createElement('div');
+      chip.className = 'tag-chip' + (activeSet.has(t) ? ' on' : '');
+      chip.textContent = t;
+      chip.addEventListener('click', () => {
+        activeSet.has(t) ? activeSet.delete(t) : activeSet.add(t);
+        chip.classList.toggle('on', activeSet.has(t));
+      });
+      wrap.appendChild(chip);
+    });
+  }
+
+  // If editing existing lick, prefill
+  if (LibState.currentLickId) {
+    const lib  = loadLibrary();
+    const lick = lib.find(l => l.id === LibState.currentLickId);
+    if (lick) {
+      document.getElementById('saveTitle').value       = lick.title;
+      document.getElementById('saveDesc').value        = lick.description || '';
+      document.getElementById('saveDifficulty').value  = lick.difficulty || '';
+      LibState.activeTechTags  = new Set(lick.techTags  || []);
+      LibState.activeStyleTags = new Set(lick.styleTags || []);
+      SaveModal.originalTitle = lick.title;
+    }
+  } else {
+    document.getElementById('saveTitle').value       = '';
+    document.getElementById('saveDesc').value        = '';
+    document.getElementById('saveDifficulty').value  = '';
+    LibState.activeTechTags  = new Set();
+    LibState.activeStyleTags = new Set();
+    SaveModal.originalTitle = '';
+  }
+
+  // Show version/save-as button only when editing an existing lick
+  document.getElementById('saveAsBtn').style.display = LibState.currentLickId ? '' : 'none';
+
+  buildTags('techTags',  TECH_TAGS,  LibState.activeTechTags);
+  buildTags('styleTags', STYLE_TAGS, LibState.activeStyleTags);
+
+  document.getElementById('saveModal').classList.remove('hidden');
+  document.getElementById('saveTitle').focus();
+}
+
+function closeSaveModal() {
+  document.getElementById('saveModal').classList.add('hidden');
+}
+
+// Generate next version name: "My Lick" → "My Lick_V2", "My Lick_V2" → "My Lick_V3"
+function nextVersionTitle(title, lib) {
+  const versionRe = /^(.*?)_V(\d+)$/i;
+  const base = versionRe.test(title) ? title.replace(versionRe, '$1') : title;
+  // Find highest existing version for this base
+  let max = 1;
+  lib.forEach(l => {
+    const m = l.title.match(new RegExp(`^${base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}_V(\\d+)$`, 'i'));
+    if (m) max = Math.max(max, parseInt(m[1]));
+    if (l.title.toLowerCase() === base.toLowerCase()) max = Math.max(max, 1);
+  });
+  return `${base}_V${max + 1}`;
+}
+
+// Refresh library modal if it's currently open
+function refreshLibraryIfOpen() {
+  const modal = document.getElementById('libraryModal');
+  if (modal && !modal.classList.contains('hidden')) renderLibrary();
+}
+
+function doSaveNew(lib, meta, now) {
+  const state = serialiseState();
+  const id = 'lick_' + now + '_' + Math.random().toString(36).slice(2,7);
+  lib.push({ id, ...meta, createdAt: now, updatedAt: now, state });
+  LibState.currentLickId = id;
+  saveLibrary(lib);
+  closeSaveModal();
+  refreshLibraryIfOpen();
+  showToast(`"${meta.title}" saved as new`);
+}
+
+function confirmSave(forceNew = false) {
+  const title = document.getElementById('saveTitle').value.trim();
+  if (!title) {
+    document.getElementById('saveTitle').focus();
+    document.getElementById('saveTitle').style.borderColor = '#e05555';
+    setTimeout(() => document.getElementById('saveTitle').style.borderColor = '', 1200);
+    return;
+  }
+  const author = document.getElementById('saveAuthor').value.trim();
+  if (author) localStorage.setItem('licklab_author', author);
+
+  const lib   = loadLibrary();
+  const now   = Date.now();
+  const state = serialiseState();
+  const meta  = {
+    title,
+    author,
+    description: document.getElementById('saveDesc').value.trim(),
+    difficulty:  document.getElementById('saveDifficulty').value,
+    techTags:    [...LibState.activeTechTags],
+    styleTags:   [...LibState.activeStyleTags],
+  };
+
+  // ── Save As New Version (forceNew = true) ──
+  if (forceNew) {
+    const titleChanged = title.toLowerCase() !== SaveModal.originalTitle.toLowerCase();
+    if (titleChanged) {
+      // User gave it a new name — just save under that name
+      doSaveNew(lib, meta, now);
+    } else {
+      // Same name → auto-version it
+      meta.title = nextVersionTitle(title, lib);
+      doSaveNew(lib, { ...meta }, now);
+    }
+    return;
+  }
+
+  // ── Save (overwrite existing) ──
+  if (LibState.currentLickId) {
+    const idx = lib.findIndex(l => l.id === LibState.currentLickId);
+    if (idx !== -1) {
+      showConfirm(
+        `Overwrite "${lib[idx].title}" with your changes?`,
+        () => {
+          lib[idx] = { ...lib[idx], ...meta, updatedAt: now, state };
+          saveLibrary(lib);
+          closeSaveModal();
+          refreshLibraryIfOpen();
+          showToast(`"${meta.title}" saved`);
+        },
+        null, 'Overwrite', 'Cancel'
+      );
+      return;
+    }
+  }
+
+  // ── New lick (no LibState.currentLickId) ──
+  // Check for name collision
+  const collision = lib.find(l => l.title.toLowerCase() === title.toLowerCase());
+  if (collision) {
+    showConfirm(
+      `A lick named "${title}" already exists. Overwrite it?`,
+      () => {
+        const idx = lib.findIndex(l => l.id === collision.id);
+        lib[idx] = { ...lib[idx], ...meta, updatedAt: now, state };
+        LibState.currentLickId = collision.id;
+        saveLibrary(lib);
+        closeSaveModal();
+        refreshLibraryIfOpen();
+        showToast(`"${meta.title}" saved`);
+      },
+      null, 'Overwrite', 'Cancel'
+    );
+    return;
+  }
+
+  doSaveNew(lib, meta, now);
+}
+
+// ── Library modal ──
+function openLibrary() {
+  // Populate style filter
+  const sel = document.getElementById('libStyle');
+  sel.innerHTML = '<option value="">All styles</option>';
+  STYLE_TAGS.forEach(t => {
+    const o = document.createElement('option');
+    o.value = t; o.textContent = t;
+    sel.appendChild(o);
+  });
+  document.getElementById('libSearch').value = '';
+  renderLibrary();
+  document.getElementById('libraryModal').classList.remove('hidden');
+}
+
+function closeLibrary() {
+  document.getElementById('libraryModal').classList.add('hidden');
+  UIState.sessionAddMode = false;
+}
+
+function addToSession(id) {
+  if (!PracticeState.session.includes(id)) {
+    PracticeState.session.push(id);
+    showToast('Added to session');
+  } else {
+    showToast('Already in session');
+  }
+  renderSessionList();
+  // Load it immediately if first lick
+  if (PracticeState.session.length === 1) {
+    loadPracticeLick(0);
+  }
+}
+
+function renderLibrary() {
+  const query  = document.getElementById('libSearch').value.toLowerCase();
+  const diff   = document.getElementById('libDiff').value;
+  const style  = document.getElementById('libStyle').value;
+  const lib    = loadLibrary();
+  const grid_el = document.getElementById('lickGrid');
+
+  const filtered = lib.filter(l => {
+    if (diff  && l.difficulty !== diff)         return false;
+    if (style && !l.styleTags?.includes(style)) return false;
+    if (query) {
+      const haystack = [l.title, l.description, ...(l.techTags||[]), ...(l.styleTags||[])].join(' ').toLowerCase();
+      if (!haystack.includes(query)) return false;
+    }
+    return true;
+  }).sort((a,b) => b.updatedAt - a.updatedAt);
+
+  grid_el.innerHTML = '';
+  if (!filtered.length) {
+    grid_el.innerHTML = '<div class="lib-empty">No licks found.<br>Save your first lick with 💾</div>';
+    return;
+  }
+
+  filtered.forEach(lick => {
+    const card = document.createElement('div');
+    card.className = 'lick-card';
+
+    const allTags = [...(lick.techTags||[]), ...(lick.styleTags||[])];
+    const diffLabel = lick.difficulty ? ` · ${lick.difficulty}` : '';
+    const s = lick.state?.settings;
+    const metaStr = s ? `${s.timeSig} · ${s.key} · ${s.bars}bar` : '';
+
+    card.innerHTML = `
+      <div class="lick-card-title">${lick.title}</div>
+      <div class="lick-card-meta">${metaStr}${diffLabel}</div>
+      ${lick.author ? `<div class="lick-card-meta" style="opacity:0.6;">${lick.author}</div>` : ''}
+      <div class="lick-card-tags">${allTags.slice(0,4).map(t => `<span class="lick-card-tag">${t}</span>`).join('')}</div>
+      <div class="lick-card-actions">
+        <button class="lick-action-btn" onclick="${UIState.sessionAddMode ? `addToSession('${lick.id}')` : `loadLick('${lick.id}')`}">${UIState.sessionAddMode ? 'Add' : 'Load'}</button>
+        ${!UIState.sessionAddMode ? `<button class="lick-action-btn danger" onclick="deleteLick('${lick.id}')">Delete</button>` : ''}
+      </div>
+    `;
+    grid_el.appendChild(card);
+  });
+}
+
+function loadLick(id) {
+  const doLoad = () => {
+    const lib  = loadLibrary();
+    const lick = lib.find(l => l.id === id);
+    if (!lick) return;
+    deserialiseState(lick.state);
+    LibState.currentLickId = id;
+    closeLibrary();
+    // Show editor if on setup screen
+    document.getElementById('setupScreen').style.display = 'none';
+    document.getElementById('editorWrap').style.display  = 'block';
+    // Note: there is no <header> element — this was a silent crash point
+    // that prevented render() from running. Safely removed.
+    render();
+    showToast(`Loaded "${lick.title}"`);
+  };
+
+  // Check for unsaved work
+  const hasNotes = [...groups.values()].some(g => g.notes && g.notes.length > 0);
+  if (hasNotes && LibState.currentLickId !== id) {
+    showConfirm(
+      'Load this lick? Unsaved changes will be lost.',
+      () => { closeSaveModal(); doLoad(); },
+      null,
+      'Discard & Load',
+      'Cancel'
+    );
+  } else {
+    doLoad();
+  }
+}
+
+function deleteLick(id) {
+  const lib   = loadLibrary();
+  const lick  = lib.find(l => l.id === id);
+  if (!lick) return;
+  showConfirm(
+    `Delete "${lick.title}"? This cannot be undone.`,
+    () => {
+      const updated = lib.filter(l => l.id !== id);
+      saveLibrary(updated);
+      if (LibState.currentLickId === id) LibState.currentLickId = null;
+      renderLibrary();
+    }
+  );
+}
+
+// ── Confirm dialog ──
+// ═══════════════════════════════════════════════════════════
+// §10 UI UTILITIES  — confirm dialog, toast, tags
+// ═══════════════════════════════════════════════════════════
+
+function showConfirm(msg, onYes, onNo, yesLabel = 'OK', noLabel = 'Cancel') {
+  document.getElementById('confirmMsg').textContent = msg;
+  document.getElementById('confirmDialog').classList.remove('hidden');
+  const yBtn = document.getElementById('confirmYes');
+  const nBtn = document.getElementById('confirmNo');
+  yBtn.textContent = yesLabel;
+  nBtn.textContent = noLabel;
+  yBtn.onclick = () => {
+    document.getElementById('confirmDialog').classList.add('hidden');
+    if (onYes) onYes();
+  };
+  nBtn.onclick = () => {
+    document.getElementById('confirmDialog').classList.add('hidden');
+    if (onNo) onNo();
+  };
+}
+
+// ── Toast ──
+function showToast(msg) {
+  let toast = document.getElementById('toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    toast.style.cssText = `position:fixed;bottom:96px;left:50%;transform:translateX(-50%);
+      background:var(--accent);color:#0f0e0c;font-family:'DM Sans',sans-serif;
+      font-size:0.8rem;padding:8px 20px;border-radius:20px;z-index:800;
+      opacity:0;transition:opacity 0.2s;pointer-events:none;white-space:nowrap;`;
+    document.body.appendChild(toast);
+  }
+  toast.textContent = msg;
+  toast.style.opacity = '1';
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => toast.style.opacity = '0', 2000);
+}
+
+
+
+
+// ═══════════════════════════════════════════
+//  SETUP + INIT
+// ═══════════════════════════════════════════
+
+function applySettings(bars, timeSig, root, scale, tuning) {
+  NUM_BARS       = bars;
+  const ts       = TIME_SIGS[timeSig];
+  BEATS_PER_BAR  = ts.beats;
+  SLOTS_PER_BEAT = ts.beatSlots;
+  SLOTS_PER_BAR  = BEATS_PER_BAR * SLOTS_PER_BEAT;
+  TOTAL_SLOTS    = NUM_BARS * SLOTS_PER_BAR;
+  SLOT_PX        = BEAT_PX / ts.beatSlots;
+  USE_FLATS      = FLAT_ROOTS.includes(root);
+  CURRENT_KEY    = root;
+  CURRENT_SCALE  = scale || 'major';
+  const t        = TUNINGS[tuning] || TUNINGS.standard;
+  STRINGS        = t.strings;
+  OPEN_MIDI      = t.midi;
+  syncEditorKeyControls();
+  syncFretboardToKey();
+  syncChordProgToSettings();
+}
+
+// Sync editor root+scale dropdowns to current globals
+function syncEditorKeyControls() {
+  const rootSel  = document.getElementById('editorRoot');
+  const scaleSel = document.getElementById('editorScale');
+  if (rootSel)  rootSel.value  = CURRENT_KEY;
+  if (scaleSel) scaleSel.value = CURRENT_SCALE;
+}
+
+// Live key/scale change from editor toolbar — re-renders immediately
+function onEditorKeyChange() {
+  const root  = document.getElementById('editorRoot')?.value  || 'C';
+  const scale = document.getElementById('editorScale')?.value || 'major';
+  USE_FLATS     = FLAT_ROOTS.includes(root);
+  CURRENT_KEY   = root;
+  CURRENT_SCALE = scale;
+  syncFretboardToKey();
+  render();
+}
+
+// Keep fretboard in sync with current key
+function syncFretboardToKey() {
+  if (!UIState.fretboardVisible) return;
+  renderFretboard();
+  const rootSel  = document.getElementById('fbRoot');
+  const scaleSel = document.getElementById('fbScale');
+  if (rootSel)  rootSel.value  = String(ROOT_TO_PC[CURRENT_KEY] ?? 0);
+  if (scaleSel) scaleSel.value = CURRENT_SCALE;
+  applyFretboardFilter();
+}
+
+// ═══════════════════════════════════════════
+//  RHYTHM RECORDER
+// ═══════════════════════════════════════════
+
+// ── Rhythm Recorder state ──
+const RR = {
+  active:     false,   // recording is live (post count-in)
+  armed:      false,   // count-in in progress
+  running:    false,   // blocks re-entry
+  tapSlots:   [],      // quantized slot indices of each tap onset
+  startTime:  0,       // audioContext time when loop slot 0 began
+  secPerSlot: 0,
+  quantSlots: 12,      // slots per quantize grid unit
+  rafId:      null,
+  toneEvents:     [],   // scheduled Tone event ids to cancel
+  checkTimeouts:  [],
+  checkSources:   [],
+};
+
+// ═══════════════════════════════════════════════════════════
+// §13 RHYTHM RECORDER  — tap input, quantise, apply
+// ═══════════════════════════════════════════════════════════
+
+function toggleRhythmRecorder() {
+  const panel = document.getElementById('rhythmRecorder');
+  panel.classList.toggle('open');
+  if (!panel.classList.contains('open')) cancelRhythmRecord();
+}
+
+async function startRhythmRecord() {
+  if (document.getElementById('editorWrap').style.display === 'none') return;
+  if (RR.running) return; // prevent re-entry if already started
+
+  cancelRhythmRecord(); // clean slate
+
+  // Set flags synchronously AFTER cancel (which resets them)
+  RR.running = true;
+  RR.armed   = true;
+  RR.active  = false;
+
+  RR.quantSlots = parseInt(document.getElementById('rrQuantize').value);
+  const countinBars = parseInt(document.getElementById('rrCountin').value);
+  const bpm = parseInt(document.getElementById('bpmInput').value) || 80;
+  RR.secPerSlot = (60 / bpm) / SLOTS_PER_BEAT;
+  RR.tapSlots = [];
+
+  // Ensure Tone + AudioContext are ready
+  await initTone();
+
+  // Reset transport fresh
+  Tone.Transport.stop();
+  Tone.Transport.cancel();
+  Tone.Transport.seconds = 0;
+  Tone.Transport.bpm.value = bpm;
+
+  const OFFSET     = 0.1; // small start offset
+  const countinSec = countinBars * BEATS_PER_BAR * SLOTS_PER_BEAT * RR.secPerSlot;
+  const loopSec    = TOTAL_SLOTS * RR.secPerSlot;
+  const style      = document.getElementById('metroStyle').value;
+
+  // Schedule metronome for count-in + full loop
+  const totalBeats = (countinBars + NUM_BARS) * BEATS_PER_BAR;
+  for (let b = 0; b < totalBeats; b++) {
+    const t = OFFSET + b * SLOTS_PER_BEAT * RR.secPerSlot;
+    const isAccent = (b % BEATS_PER_BAR === 0);
+    const eid = Tone.Transport.schedule(time => {
+      playMetroBeat(time, isAccent, style);
+    }, t);
+    RR.toneEvents.push(eid);
+  }
+
+  // Arm recorder when count-in ends — capture AudioContext time precisely
+  const loopStartT = OFFSET + countinSec;
+  const armEid = Tone.Transport.schedule(time => {
+    // 'time' is the precise AudioContext time — use it for tap reference
+    RR.startTime = time;
+    Tone.getDraw().schedule(() => {
+      RR.active = true;
+      RR.armed  = false;
+      document.getElementById('rrTapZone').classList.add('armed');
+      setRRStatus('● Recording — tap the rhythm!');
+    }, time);
+  }, loopStartT);
+  RR.toneEvents.push(armEid);
+
+  // End of loop
+  const endT = loopStartT + loopSec;
+  const endEid = Tone.Transport.schedule(time => {
+    Tone.getDraw().schedule(() => finaliseRhythmRecord(), time);
+  }, endT);
+  RR.toneEvents.push(endEid);
+
+  if (countinBars > 0) {
+    setRRStatus(`Count-in: ${countinBars} bar${countinBars > 1 ? 's' : ''}…`);
+  } else {
+    setRRStatus('● Recording — tap the rhythm!');
+  }
+
+  document.getElementById('rrStartBtn').textContent = 'Recording…';
+  document.getElementById('rrStartBtn').disabled = true;
+
+  Tone.Transport.start();
+
+  // Progress bar — driven by Tone transport seconds
+  startRRProgress(OFFSET, countinSec, loopSec);
+}
+
+// Tap zone click / Space: tap if recording, start if idle, ignore during count-in
+function rrTapOrStart() {
+  if (RR.active) {
+    onRhythmTap();
+  } else if (!RR.running) {
+    startRhythmRecord();
+  }
+  // RR.running && !RR.active = count-in → ignore
+}
+
+function onRhythmTap() {
+  if (!RR.active) return;
+
+  // Use AudioContext clock — same reference as RR.startTime (set from schedule 'time' param)
+  const elapsed   = Audio.ctx.currentTime - RR.startTime;
+  const rawSlot   = elapsed / RR.secPerSlot;
+  const quantSlot = Math.round(rawSlot / RR.quantSlots) * RR.quantSlots;
+  let   slot      = Math.max(0, Math.min(quantSlot, TOTAL_SLOTS - 1));
+
+  // First tap: snap to 0 if within one quantize unit of the start
+  if (RR.tapSlots.length === 0 && slot <= RR.quantSlots) {
+    slot = 0;
+  }
+
+  // Avoid duplicate taps on same slot
+  if (RR.tapSlots.length && RR.tapSlots[RR.tapSlots.length - 1] === slot) return;
+
+  RR.tapSlots.push(slot);
+  applyRhythmTaps();
+
+  const zone = document.getElementById('rrTapZone');
+  zone.classList.remove('flash');
+  void zone.offsetWidth;
+  zone.classList.add('flash');
+  setTimeout(() => zone.classList.remove('flash'), 150);
+
+  setRRStatus(`● Recording — ${RR.tapSlots.length} tap${RR.tapSlots.length > 1 ? 's' : ''}`);
+}
+
+// Apply current taps to grid in real time
+function applyRhythmTaps() {
+  if (!RR.tapSlots.length) return;
+
+  // Always use the full onset list including a leading 0 so the
+  // segment logic is uniform: even index = rest, odd index = note.
+  const allOnsets = [0, ...RR.tapSlots, TOTAL_SLOTS];
+
+  grid   = new Int16Array(TOTAL_SLOTS);
+  groups = new Map();
+  nextId = 1;
+
+  for (let i = 0; i < allOnsets.length - 1; i++) {
+    const start  = allOnsets[i];
+    const end    = allOnsets[i + 1];
+    const len    = end - start;
+    if (len <= 0) continue;
+    // i=0 is leading gap (rest), i=1 is first tap (note), alternates thereafter
+    const isNote = (i % 2 === 1);
+    fillSegmentMaxNV(start, len, isNote);
+  }
+
+  pruneAndFixGroups();
+  render();
+  if (window.editor) editor.validateState();
+}
+
+// Fill [start, start+len) with the largest possible note values
+// If isNote=true, cells get a placeholder fret marker; if false, they're rests
+function fillSegmentMaxNV(start, len, isNote) {
+  let s = start;
+  const end = start + len;
+  while (s < end) {
+    const barIdx = Math.floor(s / SLOTS_PER_BAR);
+    const barEnd = (barIdx + 1) * SLOTS_PER_BAR;
+    const avail  = Math.min(barEnd - s, end - s);
+    const nv     = snapNv(avail);
+    const nvSlots = NV[nv].slots;
+    const id = nextId++;
+    groups.set(id, {
+      id,
+      nv,
+      notes:   [],
+      tied:    false,
+      isCont:  false,
+      isRhythmNote: isNote,  // flag so we can style it differently
+    });
+    for (let i = s; i < s + nvSlots; i++) grid[i] = id;
+    s += nvSlots;
+  }
+}
+
+function finaliseRhythmRecord() {
+  if (!RR.running) return; // stale draw callback after cancel — ignore
+  RR.active  = false;
+  RR.armed   = false;
+  RR.running = false;
+  applyRhythmTaps();
+
+  cancelAnimationFrame(RR.rafId);
+  document.getElementById('rrProgressBar').style.width = '100%';
+  document.getElementById('rrTapZone').classList.remove('armed', 'tapped');
+  setRRStatus('Done — fill in the frets!');
+  document.getElementById('rrStartBtn').textContent = 'Redo';
+  document.getElementById('rrStartBtn').disabled = false;
+  document.getElementById('rrCheckBtn').style.display = 'inline-flex';
+
+  // Clean up scheduled events
+  RR.toneEvents.forEach(id => Tone.Transport.clear(id));
+  RR.toneEvents = [];
+  Tone.Transport.stop();
+  Tone.Transport.cancel();
+  Tone.Transport.seconds = 0;
+}
+
+function cancelRhythmRecord() {
+  RR.active  = false;
+  RR.armed   = false;
+  RR.running = false;
+  RR.toneEvents.forEach(id => Tone.Transport.clear(id));
+  RR.toneEvents = [];
+  Tone.Transport.stop();
+  Tone.Transport.cancel();
+  Tone.Transport.seconds = 0;
+  document.getElementById('rrProgressBar').style.width = '0%';
+  document.getElementById('rrTapZone').classList.remove('armed', 'tapped');
+  document.getElementById('rrStartBtn').textContent = 'Start';
+  document.getElementById('rrStartBtn').disabled = false;
+  document.getElementById('rrCheckBtn').style.display = 'none';
+  setRRStatus('Ready — tap or press Space to start');
+}
+
+function startRRProgress(offset, countinSec, loopSec) {
+  const totalSec = offset + countinSec + loopSec;
+  const bar = document.getElementById('rrProgressBar');
+  function frame() {
+    const elapsed = Tone.Transport.seconds;
+    const pct = Math.min(100, (elapsed / totalSec) * 100);
+    bar.style.width = pct + '%';
+    if (elapsed < totalSec && RR.active || elapsed < offset + countinSec) {
+      RR.rafId = requestAnimationFrame(frame);
+    }
+  }
+  RR.rafId = requestAnimationFrame(frame);
+}
+
+function setRRStatus(msg) {
+  document.getElementById('rrStatus').textContent = msg;
+}
+
+// Space key: start or tap
+document.addEventListener('keydown', e => {
+  if (e.code === 'Space' && document.getElementById('rhythmRecorder').classList.contains('open')) {
+    e.preventDefault();
+    rrTapOrStart();
+  }
+});
+
+// Check rhythm: play metronome accent on each recorded note onset
+// Uses Web Audio directly so it never touches the main Tone Transport
+// (RR.checkTimeouts and RR.checkSources moved into RR object)
+
+function checkRhythm() {
+  if (!RR.tapSlots.length) return;
+
+  if (document.getElementById('rrCheckBtn').textContent === '■ Stop') {
+    stopRhythmCheck();
+    return;
+  }
+
+  if (!Audio.ctx || !Audio.toneReady) {
+    initTone().then(() => checkRhythm());
+    return;
+  }
+
+  stopRhythmCheck(); // clear any previous
+
+  const bpm        = parseInt(document.getElementById('bpmInput').value) || 80;
+  const secPerSlot = (60 / bpm) / SLOTS_PER_BEAT;
+  const loopSec    = TOTAL_SLOTS * secPerSlot;
+  const now        = Audio.ctx.currentTime + 0.05;
+
+  // Helper: play a short click via Web Audio (no Tone Transport)
+  function scheduleClick(t, freq, isAccent) {
+    const osc  = Audio.ctx.createOscillator();
+    const gain = Audio.ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.value = freq;
+    gain.gain.setValueAtTime(isAccent ? 0.6 : 0.25, t);
+    gain.gain.setTargetAtTime(0, t + 0.01, 0.03);
+    osc.connect(gain);
+    gain.connect(Audio.ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.08);
+    RR.checkSources.push(osc);
+  }
+
+  // Background metronome beats
+  for (let b = 0; b < NUM_BARS * BEATS_PER_BAR; b++) {
+    const t = now + b * SLOTS_PER_BEAT * secPerSlot;
+    scheduleClick(t, b % BEATS_PER_BAR === 0 ? 1000 : 700, b % BEATS_PER_BAR === 0);
+  }
+
+  // Accent on each note onset
+  const allOnsets = RR.tapSlots[0] === 0 ? RR.tapSlots : [0, ...RR.tapSlots];
+  allOnsets.forEach((slot, i) => {
+    const isNote = RR.tapSlots[0] === 0 ? (i % 2 === 0) : (i % 2 === 1);
+    if (!isNote) return;
+    scheduleClick(now + slot * secPerSlot, 1800, true);
+  });
+
+  // Auto-stop after loop
+  const tid = setTimeout(() => {
+    stopRhythmCheck();
+    setRRStatus('Done — fill in the frets!');
+    document.getElementById('rrCheckBtn').textContent = '▶ Check';
+  }, (loopSec + 0.2) * 1000);
+  RR.checkTimeouts.push(tid);
+
+  setRRStatus('Playing back rhythm…');
+  document.getElementById('rrCheckBtn').textContent = '■ Stop';
+}
+
+function stopRhythmCheck() {
+  RR.checkTimeouts.forEach(t => clearTimeout(t));
+  RR.checkTimeouts = [];
+  RR.checkSources.forEach(s => { try { s.stop(); } catch(e) {} });
+  RR.checkSources = [];
+  document.getElementById('rrCheckBtn').textContent = '▶ Check';
+}
+
+// ═══════════════════════════════════════════════════════════
+// §11 NAVIGATION  — screen transitions, tab switching
+// ═══════════════════════════════════════════════════════════
+
+function goHome() {
+  stopPlayer();
+  document.getElementById('homeScreen').classList.remove('hidden');
+  document.getElementById('appShell').classList.add('hidden');
+}
+
+function goToCreate() {
+  document.getElementById('homeScreen').classList.add('hidden');
+  document.getElementById('appShell').classList.remove('hidden');
+  switchTab('create');
+}
+
+function goToPractice() {
+  document.getElementById('homeScreen').classList.add('hidden');
+  document.getElementById('appShell').classList.remove('hidden');
+  switchTab('practice');
+  renderSessionList();
+}
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+  document.getElementById('nav' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+
+  // Show/hide practice nav in player bar
+  const isPractice = tab === 'practice';
+  document.getElementById('pbPracticeNav').style.display    = isPractice ? 'flex' : 'none';
+  document.getElementById('pbPracticeNavDiv').style.display = isPractice ? 'block' : 'none';
+
+  stopPlayer();
+}
+
+function backToSetup() {
+  const hasNotes = [...groups.values()].some(g => g.notes && g.notes.length > 0);
+  if (hasNotes) {
+    showConfirm(
+      'Going to settings will clear your current lick. Continue?',
+      () => {
+        SaveModal.originalTitle = '';
+        LibState.currentLickId = null;
+        document.getElementById('saveTitle').value = '';
+        document.getElementById('editorWrap').style.display  = 'none';
+        document.getElementById('setupScreen').style.display = 'flex';
+        document.getElementById('tabOut').style.display = 'none';
+      },
+      null,
+      'Discard & Continue',
+      'Cancel'
+    );
+  } else {
+    SaveModal.originalTitle = '';
+    LibState.currentLickId = null;
+    document.getElementById('saveTitle').value = '';
+    document.getElementById('editorWrap').style.display  = 'none';
+    document.getElementById('setupScreen').style.display = 'flex';
+    document.getElementById('tabOut').style.display = 'none';
+  }
+}
+
+function startEditor() {
+  const bars    = parseInt(document.getElementById('setupBars').value);
+  const timeSig = document.getElementById('setupTimeSig').value;
+  const root    = document.getElementById('setupRoot').value  || 'C';
+  const scale   = document.getElementById('setupScale').value || 'major';
+  const tuning  = document.getElementById('setupTuning').value;
+
+  applySettings(bars, timeSig, root, scale, tuning);
+
+  document.getElementById('setupScreen').style.display = 'none';
+  document.getElementById('editorWrap').style.display  = 'block';
+
+  initGrid();
+  render();
+
+  // Modal overlay close
+  document.getElementById('saveModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('saveModal')) closeSaveModal();
+  });
+  document.getElementById('libraryModal').addEventListener('click', e => {
+    if (e.target === document.getElementById('libraryModal')) closeLibrary();
+  });
+  syncChordProgToSettings();
+}
+
+// ═══════════════════════════════════════════
+//  PRACTICE MODE
+// ═══════════════════════════════════════════
+
+// ── Practice session state ──
+const PracticeState = {
+  session:    [],    // array of lick ids
+  currentIdx: 0,
+  tabHidden:  false,
+};
+
+// ═══════════════════════════════════════════════════════════
+// §12 PRACTICE SESSION  — session list, lick loading
+// ═══════════════════════════════════════════════════════════
+
+function renderSessionList() {
+  const lib  = loadLibrary();
+  const list = document.getElementById('sessionLickList');
+  list.innerHTML = '';
+
+  if (!PracticeState.session.length) {
+    list.innerHTML = '<div class="session-empty">No licks in session — add from your library.</div>';
+    return;
+  }
+
+  PracticeState.session.forEach((id, i) => {
+    const lick = lib.find(l => l.id === id);
+    if (!lick) return;
+    const s = lick.state?.settings;
+    const meta = s ? `${s.timeSig} · ${s.key} · ${s.bars}bar` : '';
+
+    const row = document.createElement('div');
+    row.className = 'session-lick-row' + (i === PracticeState.currentIdx ? ' active' : '');
+    row.innerHTML = `
+      <span class="session-lick-num">${i + 1}</span>
+      <span class="session-lick-title">${lick.title}</span>
+      <span class="session-lick-meta">${meta}</span>
+      <button class="session-lick-remove" title="Remove" onclick="removeFromSession(${i});event.stopPropagation();">✕</button>
+    `;
+    row.addEventListener('click', () => loadPracticeLick(i));
+    list.appendChild(row);
+  });
+}
+
+function openSessionLibrary() {
+  // Reuse the library modal but in session-add mode
+  UIState.sessionAddMode = true;
+  const sel = document.getElementById('libStyle');
+  sel.innerHTML = '<option value="">All styles</option>';
+  STYLE_TAGS.forEach(t => {
+    const o = document.createElement('option');
+    o.value = t; o.textContent = t;
+    sel.appendChild(o);
+  });
+  document.getElementById('libSearch').value = '';
+  renderLibrary();
+  document.getElementById('libraryModal').classList.remove('hidden');
+}
+
+// ── Misc UI state ──
+const UIState = {
+  sessionAddMode:  false,  // true when library opened from session panel
+  fretboardVisible:false,
+};
+
+function removeFromSession(idx) {
+  PracticeState.session.splice(idx, 1);
+  if (PracticeState.currentIdx >= PracticeState.session.length) PracticeState.currentIdx = Math.max(0, PracticeState.session.length - 1);
+  renderSessionList();
+}
+
+function clearSession() {
+  PracticeState.session = [];
+  PracticeState.currentIdx = 0;
+  renderSessionList();
+  document.getElementById('practiceLickTitle').textContent = 'No lick loaded';
+  document.getElementById('practiceTabGrid').innerHTML = '';
+}
+
+function loadPracticeLick(idx) {
+  if (!PracticeState.session.length) return;
+  PracticeState.currentIdx = idx;
+  const lib  = loadLibrary();
+  const id   = PracticeState.session[idx];
+  const lick = lib.find(l => l.id === id);
+  if (!lick) return;
+
+  stopPlayer();
+
+  // Apply transposition if set
+  const targetKey = document.getElementById('practiceKey').value;
+  const state     = applyTranspose(lick.state, targetKey);
+
+  // Load into practice grid
+  deserialiseStatePractice(state);
+  renderPracticeGrid();
+
+  document.getElementById('practiceLickTitle').textContent = lick.title;
+  document.getElementById('pbLickNav').textContent = `${idx + 1} / ${PracticeState.session.length}`;
+
+  // Update loop bar range
+  document.getElementById('loopBarTo').value = state.settings.bars;
+  document.getElementById('loopBarFrom').value = 1;
+
+  renderSessionList(); // highlight active
+}
+
+function practiceNavPrev() {
+  if (!PracticeState.session.length) return;
+  const idx = (PracticeState.currentIdx - 1 + PracticeState.session.length) % PracticeState.session.length;
+  loadPracticeLick(idx);
+}
+
+function practiceNavNext() {
+  if (!PracticeState.session.length) return;
+  const idx = (PracticeState.currentIdx + 1) % PracticeState.session.length;
+  loadPracticeLick(idx);
+}
+
+function onPracticeKeyChange() {
+  if (PracticeState.session.length && PracticeState.currentIdx >= 0) {
+    loadPracticeLick(PracticeState.currentIdx);
+  }
+}
+
+function toggleHideTab() {
+  PracticeState.tabHidden = !PracticeState.tabHidden;
+  const wrap = document.getElementById('practiceTabWrap');
+  wrap.classList.toggle('hidden-tab', PracticeState.tabHidden);
+  document.getElementById('hideTabBtn').textContent = PracticeState.tabHidden ? 'Show tab' : 'Hide tab';
+}
+
+function applyTranspose(state, targetKey) {
+  if (!targetKey || !state) return state;
+  const s = JSON.parse(JSON.stringify(state));
+  // targetKey may be a root-only string like 'C', 'F#', 'Bb'
+  s.settings.root = targetKey;
+  return s;
+}
+
+// Practice grid state (separate from editor)
+// ── Practice lick data (set by loadPracticeLick) ──
+let practiceGrid     = null;
+let practiceGroups   = null;
+let practiceSettings = null;
+
+function deserialiseStatePractice(data) {
+  const s = data.settings;
+  practiceSettings = { ...s };
+
+  const editorSnapshot = {
+    bars: NUM_BARS,
+    timeSig: (() => {
+      for (const [k, v] of Object.entries(TIME_SIGS)) {
+        if (v.beats === BEATS_PER_BAR && v.beatSlots === SLOTS_PER_BEAT) return k;
+      }
+      return '4/4';
+    })(),
+    root:  CURRENT_KEY,
+    scale: CURRENT_SCALE,
+    tuning: (() => {
+      for (const [k, v] of Object.entries(TUNINGS)) {
+        if (v.midi.join(',') === OPEN_MIDI.join(',')) return k;
+      }
+      return 'standard';
+    })(),
+  };
+
+  const root  = s.root  || (s.key ? (CHROMATIC_SHARP[KEY_TO_PC[s.key] ?? 0]) : 'C');
+  const scale = s.scale || (s.key ? (KEY_TO_SCALE[s.key] || 'major') : 'major');
+  applySettings(s.bars, s.timeSig, root, scale, s.tuning || 'standard');
+
+  practiceGrid   = new Int16Array(data.grid);
+  practiceGroups = new Map(Object.entries(data.groups).map(([k,v]) => [
+    parseInt(k), { ...v, notes: (v.notes || []).map(n => ({...n})) }
+  ]));
+
+  // Restore editor globals so the create tab is unaffected
+  applySettings(editorSnapshot.bars, editorSnapshot.timeSig, editorSnapshot.root, editorSnapshot.scale, editorSnapshot.tuning);
+}
+
+function renderPracticeGrid() {
+  if (!practiceGrid) return;
+  const gridEl = document.getElementById('practiceTabGrid');
+  gridEl.innerHTML = '';
+  // Pass practice data directly — no global swap needed
+  renderInto(gridEl, practiceGrid, practiceGroups, true);
+}
+
+// ═══════════════════════════════════════════
+//  FRETBOARD
+// ═══════════════════════════════════════════
+
+
+// ═══════════════════════════════════════════════════════════
+// §14 FRETBOARD  — position map, scale overlay
+// ═══════════════════════════════════════════════════════════
+
+function toggleFretboard() {
+  UIState.fretboardVisible = !UIState.fretboardVisible;
+  const wrap = document.getElementById('fretboardWrap');
+  const btn  = document.getElementById('navFretboard');
+  wrap.classList.toggle('open', UIState.fretboardVisible);
+  btn.classList.toggle('active', UIState.fretboardVisible);
+  if (UIState.fretboardVisible) {
+    renderFretboard();
+    syncFretboardToKey();
+  }
+}
+
+// ═══════════════════════════════════════════
+//  SCALE DEFINITIONS  (intervals from root, semitones)
+// ═══════════════════════════════════════════
+
+const FB_SCALES = {
+  major:           [0,2,4,5,7,9,11],
+  natural_minor:   [0,2,3,5,7,8,10],
+  harmonic_minor:  [0,2,3,5,7,8,11],
+  melodic_minor:   [0,2,3,5,7,9,11],
+  pentatonic_major:[0,2,4,7,9],
+  pentatonic_minor:[0,3,5,7,10],
+  blues:           [0,3,5,6,7,10],
+  dorian:          [0,2,3,5,7,9,10],
+  phrygian:        [0,1,3,5,7,8,10],
+  lydian:          [0,2,4,6,7,9,11],
+  mixolydian:      [0,2,4,5,7,9,10],
+  locrian:         [0,1,3,5,6,8,10],
+};
+
+// ── CAGED / 5-position box patterns ──
+// Each position is defined as a Set of {string, fret-offset-from-root} pairs.
+// We store them as an array of 5 arrays; each inner array = [stringIndex, fretOffset] pairs
+// that belong to that position box.
+//
+// Standard 3-notes-per-string positions for a 7-note scale (major/modes):
+// Position boxes are built relative to where the root appears on each string.
+// Rather than hardcoding offsets we compute them dynamically from the scale intervals.
+//
+// Algorithm: for each of the 5 positions, find the lowest root occurrence on string 5 (low E)
+// that lies within frets 0-15, then for each string assign the 3 scale notes closest to
+// that anchor point.  We label positions 1-5 starting from the lowest root on low E.
+
+function buildPositionBoxes(rootPc, scaleIntervals, openMidiAbsFn) {
+  const C_MAJOR_POSITIONS = [
+    // Position 1 — fret 7-10
+    [{si:5,f:7},{si:5,f:8},{si:5,f:10},
+     {si:4,f:7},{si:4,f:8},{si:4,f:10},
+     {si:3,f:7},{si:3,f:9},{si:3,f:10},
+     {si:2,f:7},{si:2,f:9},{si:2,f:10},
+     {si:1,f:8},{si:1,f:10},
+     {si:0,f:7},{si:0,f:8},{si:0,f:10}],
+    // Position 2 — fret 10-13
+    [{si:5,f:10},{si:5,f:12},{si:5,f:13},
+     {si:4,f:10},{si:4,f:12},
+     {si:3,f:9},{si:3,f:10},{si:3,f:12},
+     {si:2,f:9},{si:2,f:10},{si:2,f:12},
+     {si:1,f:10},{si:1,f:12},{si:1,f:13},
+     {si:0,f:10},{si:0,f:12},{si:0,f:13}],
+    // Position 3 — fret 12-15
+    [{si:5,f:12},{si:5,f:13},{si:5,f:15},
+     {si:4,f:12},{si:4,f:14},{si:4,f:15},
+     {si:3,f:12},{si:3,f:14},{si:3,f:15},
+     {si:2,f:12},{si:2,f:14},
+     {si:1,f:12},{si:1,f:13},{si:1,f:15},
+     {si:0,f:12},{si:0,f:13},{si:0,f:15}],
+    // Position 4 — fret 3-6
+    [{si:5,f:3},{si:5,f:5},
+     {si:4,f:2},{si:4,f:3},{si:4,f:5},
+     {si:3,f:2},{si:3,f:3},{si:3,f:5},
+     {si:2,f:2},{si:2,f:4},{si:2,f:5},
+     {si:1,f:3},{si:1,f:5},{si:1,f:6},
+     {si:0,f:3},{si:0,f:5}],
+    // Position 5 — fret 5-8
+    [{si:5,f:5},{si:5,f:7},{si:5,f:8},
+     {si:4,f:5},{si:4,f:7},{si:4,f:8},
+     {si:3,f:5},{si:3,f:7},{si:3,f:9},
+     {si:2,f:5},{si:2,f:7},
+     {si:1,f:5},{si:1,f:6},{si:1,f:8},
+     {si:0,f:5},{si:0,f:7},{si:0,f:8}],
+  ];
+
+  const STD_OPEN_PC = [4, 11, 7, 2, 9, 4]; // high e, B, G, D, A, low E
+
+  // For natural minor, use relative major root (3 semitones up) as the anchor
+  // for computing position shapes — same physical patterns, same numbering.
+  const isNaturalMinor = (scaleIntervals.join(',') === [0,2,3,5,7,8,10].join(','));
+  const anchorRootPc   = isNaturalMinor ? (rootPc + 3) % 12 : rootPc;
+
+  const scalePcs = new Set(scaleIntervals.map(i => (rootPc + i) % 12));
+
+  return C_MAJOR_POSITIONS.map(cPos => {
+    const box = new Set();
+    cPos.forEach(({si, f}) => {
+      const cNotePc  = (STD_OPEN_PC[si] + f) % 12;
+      const targetPc = (cNotePc + anchorRootPc) % 12;
+      if (!scalePcs.has(targetPc)) return;
+      const base  = openMidiAbsFn(si);
+      const fRef  = f + anchorRootPc; // expected fret after transposition
+      let best = -1, bestDist = Infinity;
+      for (let cf = 0; cf <= 15; cf++) {
+        if ((base + cf) % 12 === targetPc) {
+          const dist = Math.abs(cf - fRef);
+          if (dist < bestDist) { bestDist = dist; best = cf; }
+        }
+      }
+      if (best >= 0) box.add(`${si}_${best}`);
+    });
+
+    // If every fret in this position is >= 12, also show it at the nut (fret - 12)
+    const boxFrets = [...box].map(k => parseInt(k.split('_')[1]));
+    if (boxFrets.length > 0 && boxFrets.every(bf => bf >= 12)) {
+      [...box].forEach(k => {
+        const [s, fStr] = k.split('_');
+        const lowF = parseInt(fStr) - 12;
+        if (lowF >= 0) box.add(`${s}_${lowF}`);
+      });
+    }
+
+    return box;
+  });
+}
+
+// TODO: verify position patterns for all scale types (harmonic minor, melodic minor,
+// modes, pentatonic, blues) — currently only major and natural minor are confirmed correct.
+
+// ── Apply / clear filter ──
+function applyFretboardFilter() {
+  const rootVal  = document.getElementById('fbRoot').value;
+  const scaleVal = document.getElementById('fbScale').value;
+  const posVal   = document.getElementById('fbPosition').value;
+
+  // If no root or no scale selected, just clear visual styling and return
+  if (!rootVal || !scaleVal) {
+    document.querySelectorAll('#fretboardGrid .fb-note').forEach(b => {
+      b.classList.remove('fb-root', 'fb-root-dim', 'fb-in-pos', 'fb-in-scale', 'fb-out');
+      b.textContent = '';
+    });
+    return;
+  }
+
+  const rootPc       = parseInt(rootVal);
+  const intervals    = FB_SCALES[scaleVal];
+  const scalePcs     = new Set(intervals.map(i => (rootPc + i) % 12));
+
+  const STD_MIDI_ABS = [64, 59, 55, 50, 45, 40];
+  const STD_MIDI_MOD = [4, 11, 7, 2, 9, 4];
+  function openMidiAbs(si) {
+    let diff = OPEN_MIDI[si] - STD_MIDI_MOD[si];
+    while (diff > 6)  diff -= 12;
+    while (diff < -6) diff += 12;
+    return STD_MIDI_ABS[si] + diff;
+  }
+
+  // Build position boxes if a specific position is chosen
+  let posBoxes = null;
+  if (posVal !== 'all') {
+    posBoxes = buildPositionBoxes(rootPc, intervals, openMidiAbs);
+  }
+  const activeBox = (posBoxes && posVal !== 'all') ? posBoxes[parseInt(posVal) - 1] : null;
+
+  // Degree label lookup: semitones from root → display label
+  // Uses interval names: R, 2, b3, 3, 4, b5, 5, b6/6, 6, b7, 7
+  const DEGREE_LABELS = ['R','b2','2','b3','3','4','b5','5','b6','6','b7','7'];
+
+  // Apply classes + degree labels to every badge
+  document.querySelectorAll('#fretboardGrid .fb-cell').forEach(cell => {
+    const badge = cell.querySelector('.fb-note');
+    if (!badge) return;
+
+    const si  = parseInt(cell.dataset.si);
+    const f   = parseInt(cell.dataset.fret);
+    const pc  = (openMidiAbs(si) + f) % 12;
+    const semFromRoot = (pc - rootPc + 12) % 12;
+
+    // Remove all state classes first
+    badge.classList.remove('fb-root', 'fb-root-dim', 'fb-in-pos', 'fb-in-scale', 'fb-out');
+
+    if (!scalePcs.has(pc)) {
+      badge.classList.add('fb-out');
+      badge.textContent = '';
+    } else if (pc === rootPc) {
+      badge.textContent = 'R';
+      if (!activeBox || activeBox.has(`${si}_${f}`)) {
+        badge.classList.add('fb-root');
+      } else {
+        badge.classList.add('fb-root-dim');
+      }
+    } else {
+      badge.textContent = DEGREE_LABELS[semFromRoot] || semFromRoot;
+      if (activeBox) {
+        badge.classList.add(activeBox.has(`${si}_${f}`) ? 'fb-in-pos' : 'fb-in-scale');
+      } else {
+        badge.classList.add('fb-in-pos');
+      }
+    }
+  });
+}
+
+function clearFretboardFilter() {
+  document.getElementById('fbRoot').value     = '';
+  document.getElementById('fbScale').value    = '';
+  document.getElementById('fbPosition').value = 'all';
+  document.querySelectorAll('#fretboardGrid .fb-note').forEach(b => {
+    b.classList.remove('fb-root', 'fb-root-dim', 'fb-in-pos', 'fb-in-scale', 'fb-out');
+  });
+}
+
+// Re-render fretboard (call when tuning/key changes)
+function renderFretboard() {
+  const gridEl = document.getElementById('fretboardGrid');
+  if (!gridEl) return;
+  gridEl.innerHTML = '';
+
+  const NUM_FRETS    = 15;
+  const CELL_W       = 56;
+  const STRING_H     = 46;  // must match .fb-cell height
+  const NAME_W       = 36;  // must match .fb-string-name width
+  const MARKER_CELLS = new Set([3, 5, 7, 9, 15]);
+  const OCTAVE_CELL  = 12;
+  const NUT_CELL     = 0;
+
+  const STD_MIDI_ABS = [64, 59, 55, 50, 45, 40];
+  const STD_MIDI_MOD = [4, 11, 7, 2, 9, 4];
+
+  function openMidiAbs(si) {
+    let diff = OPEN_MIDI[si] - STD_MIDI_MOD[si];
+    while (diff > 6)  diff -= 12;
+    while (diff < -6) diff += 12;
+    return STD_MIDI_ABS[si] + diff;
+  }
+
+  // ── String rows ──
+  STRINGS.forEach((strName, si) => {
+    const row = document.createElement('div');
+    row.className = 'fb-string-row';
+    row.dataset.si = si;
+
+    const nameLbl = document.createElement('div');
+    nameLbl.className = 'fb-string-name';
+    nameLbl.textContent = strName;
+    row.appendChild(nameLbl);
+
+    const cellsWrap = document.createElement('div');
+    cellsWrap.className = 'fb-string-cells';
+
+    const baseAbsMidi = openMidiAbs(si);
+
+    for (let f = 0; f <= NUM_FRETS; f++) {
+      const midi = baseAbsMidi + f;
+
+      const cell = document.createElement('div');
+      cell.className = 'fb-cell';
+      cell.dataset.si   = si;
+      cell.dataset.fret = f;
+      if (f === NUT_CELL)           cell.classList.add('fb-nut');
+      else if (f === OCTAVE_CELL)   cell.classList.add('fb-octave');
+      else if (MARKER_CELLS.has(f)) cell.classList.add('fb-dot-fret');
+
+      const badge = document.createElement('div');
+      badge.className = 'fb-note';
+      // textContent set by applyFretboardFilter — empty until filter runs
+      badge.dataset.midi = midi;
+
+      cell.appendChild(badge);
+      cell.addEventListener('click', () => playFretboardNote(midi, badge));
+      cellsWrap.appendChild(cell);
+    }
+
+    row.appendChild(cellsWrap);
+    gridEl.appendChild(row);
+  });
+
+  // ── Fret number row at bottom ──
+  const fretRow = document.createElement('div');
+  fretRow.className = 'fb-fret-row';
+
+  const fretSpacer = document.createElement('div');
+  fretSpacer.style.cssText = `width:${NAME_W}px;flex-shrink:0;background:#1a1714;`;
+  fretRow.appendChild(fretSpacer);
+
+  for (let f = 0; f <= NUM_FRETS; f++) {
+    const lbl = document.createElement('div');
+    lbl.style.width = CELL_W + 'px';
+    lbl.style.flexShrink = '0';
+    if (f === 0) {
+      lbl.className = 'fb-fret-label fb-fret-open';
+      lbl.textContent = 'open';
+    } else {
+      lbl.className = MARKER_CELLS.has(f) || f === OCTAVE_CELL
+        ? 'fb-fret-label fb-fret-marker'
+        : 'fb-fret-label';
+      lbl.textContent = f;
+    }
+    fretRow.appendChild(lbl);
+  }
+  gridEl.appendChild(fretRow);
+
+  // ── Inlay dots — between G (si=2) and D (si=3) strings ──
+  const allRows = gridEl.querySelectorAll('.fb-string-row');
+  const gridRect = gridEl.getBoundingClientRect();
+  const gRowRect = allRows[2] ? allRows[2].getBoundingClientRect() : null;
+  const dRowRect = allRows[3] ? allRows[3].getBoundingClientRect() : null;
+  const dotY = (gRowRect && dRowRect)
+    ? ((gRowRect.bottom + dRowRect.top) / 2) - gridRect.top
+    : 2.5 * STRING_H;
+
+  const dotFrets = [...MARKER_CELLS, OCTAVE_CELL];
+  dotFrets.forEach(f => {
+    const dotXCenter = NAME_W + f * CELL_W + CELL_W / 2;
+    if (f === OCTAVE_CELL) {
+      [-10, 10].forEach(offset => {
+        const dot = document.createElement('div');
+        dot.className = 'fb-dot-marker';
+        dot.style.left = (dotXCenter + offset) + 'px';
+        dot.style.top  = dotY + 'px';
+        gridEl.appendChild(dot);
+      });
+    } else {
+      const dot = document.createElement('div');
+      dot.className = 'fb-dot-marker';
+      dot.style.left = dotXCenter + 'px';
+      dot.style.top  = dotY + 'px';
+      gridEl.appendChild(dot);
+    }
+  });
+
+  // Re-apply scale filter
+  const rootVal  = document.getElementById('fbRoot')?.value;
+  const scaleVal = document.getElementById('fbScale')?.value;
+  if (rootVal && scaleVal) applyFretboardFilter();
+}
+
+// Play a fretboard note — reuses the exact same sample engine as the editor
+async function playFretboardNote(midi, badgeEl) {
+  // Init audio if needed (first interaction)
+  if (!Audio.toneReady) await initTone();
+  else if (Audio.ctx && Audio.ctx.state === 'suspended') await Audio.ctx.resume();
+
+  if (!Audio.samplesReady) {
+    await loadGuitarSamples();
+  }
+
+  const t = Audio.ctx.currentTime + 0.01;
+  playSampleNote(midi, 1.5, t);
+
+  // Visual flash on the badge
+  if (badgeEl) {
+    badgeEl.classList.add('playing');
+    setTimeout(() => badgeEl.classList.remove('playing'), 350);
+  }
+}
+
+// Re-render fretboard when guitar type changes (already hooks via onGuitarTypeChange)
+
+// ── Fretboard dropdown event listeners (wired here so functions are already defined) ──
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('fbRoot')    ?.addEventListener('change', applyFretboardFilter);
+  document.getElementById('fbScale')   ?.addEventListener('change', applyFretboardFilter);
+  document.getElementById('fbPosition')?.addEventListener('change', applyFretboardFilter);
+});
+
+// Initialise on load
+document.getElementById('homeScreen').classList.remove('hidden');
+document.getElementById('appShell').classList.add('hidden');
+</script>
+<div class="nv-panel" id="nvPanel">
+  <div class="nv-mods">
+    <div class="nv-mod" id="EditorUI.nvDot" title="Dotted (×1.5)">· dot</div>
+    <div class="nv-mod" id="nvTrip" title="Triplet (÷3)">×3</div>
+  </div>
+  <div id="nvOptions"></div>
+</div>
+
+
+<div class="player-bar" id="playerBar">
+
+  <!-- Guitar Type -->
+  <div class="pb-group">
+    <div class="pb-label">Guitar</div>
+    <select class="pb-select" id="guitarTypeSel" style="width:110px;" onchange="onGuitarTypeChange()">
+      <option value="acoustic_nylon">Nylon (warm)</option>
+      <option value="acoustic_steel">Steel (bright)</option>
+      <option value="electric_clean">Electric clean</option>
+      <option value="electric_jazz">Electric jazz</option>
+      <option value="electric_muted">Electric muted</option>
+      <option value="overdriven">Overdriven</option>
+      <option value="distortion">Distortion</option>
+    </select>
+  </div>
+
+  <div class="pb-divider"></div>
+
+  <!-- Practice: lick nav (hidden in create mode) -->
+  <div class="pb-group" id="pbPracticeNav" style="display:none;">
+    <div class="pb-label">Lick</div>
+    <div style="display:flex;gap:4px;align-items:center;">
+      <button class="pb-btn" onclick="practiceNavPrev()">◀</button>
+      <span class="pb-status" id="pbLickNav" style="min-width:60px;font-size:0.65rem;">—</span>
+      <button class="pb-btn" onclick="practiceNavNext()">▶</button>
+    </div>
+  </div>
+  <div class="pb-divider" id="pbPracticeNavDiv" style="display:none;"></div>
+
+  <!-- Play/Stop -->
+  <div class="pb-group">
+    <div class="pb-label">Transport</div>
+    <button class="pb-btn play-btn" id="playBtn" onclick="togglePlay()">▶</button>
+  </div>
+
+  <div class="pb-divider"></div>
+
+  <!-- BPM -->
+  <div class="pb-group">
+    <div class="pb-label">BPM</div>
+    <div style="display:flex;gap:4px;align-items:center;">
+      <input class="pb-input" id="bpmInput" type="number" min="20" max="300" value="80" style="width:58px;">
+      <button class="pb-btn" onclick="tapTempo()" title="Tap tempo">tap</button>
+      <button class="pb-btn active" id="resetBpmBtn" onclick="toggleResetBpm()" title="BPM resets to start on stop (click to disable)">↺</button>
+    </div>
+  </div>
+
+  <div class="pb-divider"></div>
+
+  <!-- Metronome -->
+  <div class="pb-group">
+    <div class="pb-label">Metronome</div>
+    <div style="display:flex;gap:4px;align-items:center;">
+      <button class="pb-btn" id="metroBtn" onclick="toggleMetro()">off</button>
+      <select class="pb-select" id="metroStyle">
+        <option value="click">Click</option>
+        <option value="beep">Beep</option>
+        <option value="accent">Accent</option>
+        <option value="drum">Drum</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="pb-divider"></div>
+
+  <!-- Count-in -->
+  <div class="pb-group">
+    <div class="pb-label">Count-in</div>
+    <select class="pb-select" id="countinSel" style="width:72px;">
+      <option value="0">Off</option>
+      <option value="1">1 bar</option>
+      <option value="2">2 bars</option>
+      <option value="lick">Full lick</option>
+    </select>
+  </div>
+
+  <div class="pb-divider"></div>
+
+  <!-- Sequence -->
+  <div class="pb-group">
+    <div class="pb-label">Play ×</div>
+    <input class="pb-input w32" id="seqPlay" type="number" min="1" max="16" value="2">
+  </div>
+  <div class="pb-group">
+    <div class="pb-label">Your turn ×</div>
+    <input class="pb-input w32" id="seqSilent" type="number" min="0" max="16" value="2">
+  </div>
+  <div class="pb-group">
+    <div class="pb-label">Check ×</div>
+    <input class="pb-input w32" id="seqCheck" type="number" min="0" max="16" value="1">
+  </div>
+
+  <div class="pb-divider"></div>
+
+  <!-- Loop + BPM increase -->
+  <div class="pb-group">
+    <div class="pb-label">Loop</div>
+    <button class="pb-btn" id="loopBtn" onclick="toggleLoop()">off</button>
+  </div>
+  <div class="pb-group">
+    <div class="pb-label">+BPM/loop</div>
+    <input class="pb-input" id="bpmInc" type="number" min="0" max="20" value="0" style="width:52px;">
+  </div>
+  <div class="pb-group">
+    <div class="pb-label">loops/step</div>
+    <input class="pb-input" id="bpmLoopsPerStep" type="number" min="1" max="20" value="1" style="width:52px;">
+  </div>
+
+  <div class="pb-divider"></div>
+
+  <!-- Status -->
+  <div class="pb-status" id="pbStatus">Ready</div>
+
+</div>
+
+
+<!-- ── Save Modal ── -->
+<div class="modal-overlay hidden" id="saveModal">
+  <div class="modal-card">
+    <div class="modal-header">
+      <h2>Save Lick</h2>
+      <button class="modal-close" onclick="closeSaveModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-row">
+        <div class="form-field">
+          <label>Title *</label>
+          <input class="form-input" id="saveTitle" placeholder="e.g. Blues Turnaround in E">
+        </div>
+        <div class="form-field">
+          <label>Author Name</label>
+          <input class="form-input" id="saveAuthor" placeholder="Your name">
+        </div>
+      </div>
+      <div class="form-field">
+        <label>Description</label>
+        <textarea class="form-textarea" id="saveDesc" placeholder="Notes about this lick…"></textarea>
+      </div>
+      <div class="form-field">
+        <label>Difficulty</label>
+        <select class="form-select" id="saveDifficulty">
+          <option value="">— select —</option>
+          <option value="beginner">Beginner</option>
+          <option value="intermediate">Intermediate</option>
+          <option value="advanced">Advanced</option>
+        </select>
+      </div>
+      <div class="form-field">
+        <label>Technique Tags</label>
+        <div class="tag-grid" id="techTags"></div>
+      </div>
+      <div class="form-field">
+        <label>Style / Genre Tags</label>
+        <div class="tag-grid" id="styleTags"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn" onclick="closeSaveModal()">Cancel</button>
+      <button class="btn" id="saveAsBtn" onclick="confirmSave(true)" style="display:none;">Save New Version</button>
+      <button class="btn primary" onclick="confirmSave(false)">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Library Modal ── -->
+<div class="modal-overlay hidden" id="libraryModal">
+  <div class="modal-card wide">
+    <div class="modal-header">
+      <h2>Lick Library</h2>
+      <button class="modal-close" onclick="closeLibrary()">✕</button>
+    </div>
+    <div class="lib-filters">
+      <input class="form-input lib-search" id="libSearch" placeholder="Search title, tags…" oninput="renderLibrary()">
+      <select class="form-select" style="width:120px;" id="libDiff" onchange="renderLibrary()">
+        <option value="">All levels</option>
+        <option value="beginner">Beginner</option>
+        <option value="intermediate">Intermediate</option>
+        <option value="advanced">Advanced</option>
+      </select>
+      <select class="form-select" style="width:120px;" id="libStyle" onchange="renderLibrary()">
+        <option value="">All styles</option>
+      </select>
+    </div>
+    <div class="lick-grid" id="lickGrid"></div>
+  </div>
+</div>
+
+<!-- ── Confirm Dialog ── -->
+<div class="confirm-overlay hidden" id="confirmDialog">
+  <div class="confirm-card">
+    <p id="confirmMsg">Are you sure?</p>
+    <div class="confirm-btns">
+      <button class="btn" id="confirmNo">Cancel</button>
+      <button class="btn primary" id="confirmYes">OK</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+/* ===============================
+   Tier 1 Architecture Upgrade
+   =============================== */
+
+class EditorState {
+  constructor(config) {
+    // ── Settings (single source of truth) ──
+    this.settings = {
+      NUM_BARS:       config.NUM_BARS       ?? 2,
+      BEATS_PER_BAR:  config.BEATS_PER_BAR  ?? 4,
+      SLOTS_PER_BEAT: config.SLOTS_PER_BEAT ?? 24,
+      SLOTS_PER_BAR:  config.SLOTS_PER_BAR  ?? 96,
+      TOTAL_SLOTS:    config.TOTAL_SLOTS    ?? 192,
+      USE_FLATS:      config.USE_FLATS      ?? false,
+      CURRENT_KEY:    config.CURRENT_KEY    ?? 'C',
+      CURRENT_SCALE:  config.CURRENT_SCALE  ?? 'major',
+      STRINGS:        config.STRINGS        ?? ['e','B','G','D','A','E'],
+      OPEN_MIDI:      config.OPEN_MIDI      ?? [4,11,7,2,9,4],
+      SLOT_PX:        config.SLOT_PX        ?? 2.5,
+    };
+
+    this.grid = new Int16Array(this.settings.TOTAL_SLOTS);
+    this.groups = new Map();
+    this.nextId = 1; // single ID counter — shared via window.nextId bridge
+    // NOTE: No nextGroupId here — the single source of truth is the
+    // global `nextId` variable. The window.nextGroupId bridge below
+    // redirects any access to that same counter.
+
+    this.onChange = null;
+  }
+
+  setChangeListener(fn) {
+    this.onChange = fn;
+  }
+
+  notifyChange() {
+    if (this.onChange) this.onChange();
+  }
+
+  mutate(fn) {
+    fn(this);
+    this.validateState();
+    this.notifyChange();
+  }
+
+  validateState() {
+    const seen = new Set();
+    let errors = 0;
+
+    for (let i = 0; i < this.grid.length; i++) {
+      const id = this.grid[i];
+      if (id === 0) continue;
+      if (!this.groups.has(id)) {
+        console.error(`[EditorState] Grid slot ${i} references missing group ${id}`);
+        errors++;
+      }
+      seen.add(id);
+    }
+
+    for (let [id] of this.groups) {
+      if (!seen.has(id)) {
+        console.warn(`[EditorState] Orphan group ${id} — not referenced by any grid slot`);
+        errors++;
+      }
+    }
+
+    if (errors === 0) {
+      // Uncomment for verbose debugging:
+      // console.log('[EditorState] State valid ✓');
+    }
+    return errors === 0;
+  }
+}
+
+// Create editor instance using existing globals if available
+window.addEventListener("DOMContentLoaded", () => {
+  if (typeof NUM_BARS !== "undefined" && typeof SLOTS_PER_BAR !== "undefined") {
+    window.editor = new EditorState({
+      NUM_BARS,
+      BEATS_PER_BAR,
+      SLOTS_PER_BEAT,
+      SLOTS_PER_BAR,
+      TOTAL_SLOTS,
+      USE_FLATS,
+      CURRENT_KEY,
+      CURRENT_SCALE,
+      STRINGS,
+      OPEN_MIDI,
+      SLOT_PX,
+    });
+
+    // ── Safe bridge helper ──
+    // Uses try/catch to handle both first-load (var → redefine) and
+    // hot-reload (getter already exists) cases gracefully.
+    function safeBridge(name, getter, setter) {
+      try {
+        Object.defineProperty(window, name, {
+          get: getter,
+          set: setter,
+          configurable: true,
+          enumerable: true,
+        });
+      } catch(e) {
+        // Already bridged as non-configurable — skip silently
+      }
+    }
+
+    // ── Bridge: data ──
+    safeBridge("grid",        () => editor.grid,    (v) => { editor.grid = v; });
+    safeBridge("groups",      () => editor.groups,  (v) => { editor.groups = v; });
+    safeBridge("nextId",      () => editor.nextId,  (v) => { editor.nextId = v; });
+    safeBridge("nextGroupId", () => editor.nextId,  (v) => { editor.nextId = v; });
+
+    // ── Bridge: settings ──
+    [
+      'NUM_BARS','BEATS_PER_BAR','SLOTS_PER_BEAT','SLOTS_PER_BAR',
+      'TOTAL_SLOTS','USE_FLATS','CURRENT_KEY','CURRENT_SCALE','STRINGS','OPEN_MIDI','SLOT_PX'
+    ].forEach(name => safeBridge(
+      name,
+      () => editor.settings[name],
+      (v) => { editor.settings[name] = v; }
+    ));
+
+    // Hook render if exists
+    if (typeof render === "function") {
+      editor.setChangeListener(() => render());
+    }
+  }
+});
+
+// ═══════════════════════════════════════════════════════════
+// §15  CHORD PROGRESSION
+// ═══════════════════════════════════════════════════════════
+
+const ChordProg = { enabled:false, chords:[], activeBeat:-1 };
+
+const SCALE_CHORDS = {
+  major:           ['maj','min','min','maj','maj','min','dim'],
+  natural_minor:   ['min','dim','maj','min','min','maj','maj'],
+  harmonic_minor:  ['min','dim','aug','min','maj','maj','dim'],
+  melodic_minor:   ['min','min','aug','maj','maj','dim','dim'],
+  dorian:          ['min','min','maj','maj','min','dim','maj'],
+  phrygian:        ['min','maj','maj','min','dim','maj','min'],
+  lydian:          ['maj','maj','min','dim','maj','min','min'],
+  mixolydian:      ['maj','min','dim','maj','min','min','maj'],
+  pentatonic_major:['maj','min','min','maj','min',null,null],
+  pentatonic_minor:['min','maj','min','min','maj',null,null],
+  blues:           ['dom7','min','min','dom7','dom7','min',null],
+  locrian:         ['dim','maj','min','min','maj','maj','min'],
+};
+const ROMAN_MAJ = ['I','II','III','IV','V','VI','VII'];
+const ROMAN_MIN = ['i','ii','iii','iv','v','vi','vii'];
+const CHORD_INTS = { maj:[0,4,7],min:[0,3,7],dim:[0,3,6],aug:[0,4,8],dom7:[0,4,7,10],maj7:[0,4,7,11],min7:[0,3,7,10] };
+const SCALE_INTS = {
+  major:[0,2,4,5,7,9,11],natural_minor:[0,2,3,5,7,8,10],
+  harmonic_minor:[0,2,3,5,7,8,11],melodic_minor:[0,2,3,5,7,9,11],
+  dorian:[0,2,3,5,7,9,10],phrygian:[0,1,3,5,7,8,10],
+  lydian:[0,2,4,6,7,9,11],mixolydian:[0,2,4,5,7,9,10],
+  pentatonic_major:[0,2,4,7,9],pentatonic_minor:[0,3,5,7,10],
+  blues:[0,3,5,6,7,10],locrian:[0,1,3,5,6,8,10],
+};
+
+function buildDiatonicChord(degIdx, rootPc, scaleKey) {
+  const ints  = SCALE_INTS[scaleKey]  || SCALE_INTS.major;
+  const quals = SCALE_CHORDS[scaleKey] || SCALE_CHORDS.major;
+  if (degIdx >= ints.length || !quals[degIdx]) return null;
+  const cr  = (rootPc + ints[degIdx]) % 12;
+  const q   = quals[degIdx];
+  const pcs = new Set((CHORD_INTS[q]||[0,4,7]).map(i=>(cr+i)%12));
+  const NNS = USE_FLATS
+    ? ['C','Db','D','Eb','E','F','Gb','G','Ab','A','Bb','B']
+    : ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+  const ql  = {maj:'',min:'m',dim:'°',aug:'+',dom7:'7',maj7:'maj7',min7:'m7'}[q]||q;
+  const min = ['min','dim','min7'].includes(q);
+  return { degIdx, quality:q, rootPc:cr, name:NNS[cr]+ql, roman:(min?ROMAN_MIN:ROMAN_MAJ)[degIdx], pcs };
+}
+
+function getDiatonicChords() {
+  const rootPc   = ROOT_TO_PC[CURRENT_KEY] ?? 0;
+  const scaleKey = CURRENT_SCALE || 'major';
+  return (SCALE_INTS[scaleKey]||SCALE_INTS.major).map((_,i)=>buildDiatonicChord(i,rootPc,scaleKey));
+}
+
+function renderChordProg() {
+  const row = document.getElementById('chordProgRow');
+  if (!row) return;
+  row.innerHTML = '';
+  const totalBeats = NUM_BARS * BEATS_PER_BAR;
+  const spacer = document.createElement('div');
+  spacer.className = 'chord-prog-spacer';
+  row.appendChild(spacer);
+  for (let beat = 0; beat < totalBeats; beat++) {
+    if (beat % BEATS_PER_BAR === 0) {
+      const cap = document.createElement('div'); cap.className = 'chord-prog-cap'; row.appendChild(cap);
+    }
+    const chord = ChordProg.chords[beat] || null;
+    const cell  = document.createElement('div');
+    cell.className = 'chord-cell' + (chord?'':' empty') + (beat===ChordProg.activeBeat?' active':'');
+    cell.style.width = BEAT_PX + 'px';
+    cell.dataset.beat = beat;
+    if (chord) {
+      const r = document.createElement('span'); r.className='chord-cell-roman'; r.textContent=chord.roman;
+      const n = document.createElement('span'); n.className='chord-cell-name';  n.textContent=chord.name;
+      cell.appendChild(r); cell.appendChild(n);
+    } else {
+      const e = document.createElement('span'); e.className='chord-cell-name'; e.textContent='+';
+      cell.appendChild(e);
+    }
+    cell.addEventListener('click', (ev) => { ev.stopPropagation(); openChordPopup(beat, cell, ev); });
+    row.appendChild(cell);
+  }
+  const cap = document.createElement('div'); cap.className='chord-prog-cap'; row.appendChild(cap);
+}
+
+let _cpBar = -1;
+function openChordPopup(beatIdx, cellEl, e) {
+  _cpBar = beatIdx;
+  const popup  = document.getElementById('chordPopup');
+  const degsEl = document.getElementById('chordPopupDegrees');
+  if (!popup || !degsEl) return;
+  degsEl.innerHTML = '';
+  getDiatonicChords().forEach((ch,i) => {
+    if (!ch) return;
+    const btn = document.createElement('button');
+    btn.className = 'chord-degree-btn' + (ChordProg.chords[beatIdx]?.degIdx===i?' selected':'');
+    const rr = document.createElement('span'); rr.className='deg-roman'; rr.textContent=ch.roman;
+    const nn = document.createElement('span'); nn.className='deg-name';  nn.textContent=ch.name;
+    btn.appendChild(rr); btn.appendChild(nn);
+    btn.addEventListener('click', (ev) => {
+      ev.stopPropagation();
+      ChordProg.chords[beatIdx] = ch;
+      closeChordPopup();
+      renderChordProg();
+      if (ChordProg.enabled) applyChordToFretboard(beatIdx);
+    });
+    degsEl.appendChild(btn);
+  });
+  const rect = cellEl.getBoundingClientRect();
+  popup.style.left = Math.min(rect.left, window.innerWidth - 240) + 'px';
+  popup.style.top  = (rect.bottom + 4) + 'px';
+  popup.classList.add('open');
+  setTimeout(() => document.addEventListener('click', _cpClose, { once:true }), 0);
+}
+function _cpClose(e) {
+  const p = document.getElementById('chordPopup');
+  if (p && !p.contains(e.target)) closeChordPopup();
+}
+function closeChordPopup() {
+  document.getElementById('chordPopup')?.classList.remove('open');
+  _cpBar = -1;
+}
+function clearChordCell() {
+  if (_cpBar >= 0) { ChordProg.chords[_cpBar]=null; closeChordPopup(); renderChordProg(); if(ChordProg.enabled) clearChordFretboard(); }
+}
+function toggleChordProg() {
+  ChordProg.enabled = !ChordProg.enabled;
+  const btn = document.getElementById('chordProgToggle');
+  if (btn) { btn.textContent=ChordProg.enabled?'on':'off'; btn.classList.toggle('on',ChordProg.enabled); }
+  if (!ChordProg.enabled) clearChordFretboard();
+}
+
+function applyChordToFretboard(beatIdx) {
+  const totalBeats = NUM_BARS * BEATS_PER_BAR;
+  const chord = ChordProg.chords[beatIdx % totalBeats];
+  if (!chord) { clearChordFretboard(); return; }
+  const rootPc   = parseInt(document.getElementById('fbRoot')?.value ?? chord.rootPc);
+  const scaleKey = document.getElementById('fbScale')?.value || 'major';
+  const scalePcs = new Set((SCALE_INTS[scaleKey]||SCALE_INTS.major).map(i=>(rootPc+i)%12));
+  const SMA=[64,59,55,50,45,40], SMM=[4,11,7,2,9,4];
+  function oma(si){let d=OPEN_MIDI[si]-SMM[si];while(d>6)d-=12;while(d<-6)d+=12;return SMA[si]+d;}
+  const DEG=['R','b2','2','b3','3','4','b5','5','b6','6','b7','7'];
+  document.querySelectorAll('#fretboardGrid .fb-cell').forEach(cell=>{
+    const badge=cell.querySelector('.fb-note'); if(!badge)return;
+    const si=parseInt(cell.dataset.si),f=parseInt(cell.dataset.fret);
+    const pc=(oma(si)+f)%12;
+    badge.classList.remove('fb-root','fb-root-dim','fb-in-pos','fb-in-scale','fb-out');
+    if(chord.pcs.has(pc)){
+      badge.classList.add(pc===chord.rootPc?'fb-root':'fb-in-pos');
+      badge.textContent=DEG[(pc-chord.rootPc+12)%12];
+    } else if(scalePcs.has(pc)){
+      badge.classList.add('fb-in-scale'); badge.textContent=DEG[(pc-rootPc+12)%12];
+    } else { badge.classList.add('fb-out'); badge.textContent=''; }
+  });
+}
+function clearChordFretboard() {
+  const rv=document.getElementById('fbRoot')?.value, sv=document.getElementById('fbScale')?.value;
+  if(rv&&sv) applyFretboardFilter();
+  else document.querySelectorAll('#fretboardGrid .fb-note').forEach(b=>{
+    b.classList.remove('fb-root','fb-root-dim','fb-in-pos','fb-in-scale','fb-out'); b.textContent='';
+  });
+}
+function syncChordProgToSettings() {
+  const totalBeats = NUM_BARS * BEATS_PER_BAR;
+  while(ChordProg.chords.length < totalBeats) ChordProg.chords.push(null);
+  ChordProg.chords.length = totalBeats;
+  renderChordProg();
+}
+
+</script>
+
+  <div class="chord-popup" id="chordPopup">
+    <div class="chord-popup-title">Choose Chord</div>
+    <div class="chord-popup-degrees" id="chordPopupDegrees"></div>
+    <button class="chord-popup-clear" onclick="clearChordCell()">clear chord</button>
+  </div>
+</body>
+</html>
